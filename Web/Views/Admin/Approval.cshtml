@@ -1,0 +1,237 @@
+﻿@model Web.Models.UserModel
+
+@{
+    ViewBag.Title = "Admin Awaiting Approval";
+}
+@section breadcrumb {
+    <li class="breadcrumb-item active" aria-current="page">Admin  Approval</li>
+}
+
+@using Web.Extensions
+@Html.MessageLabel()
+@using (Html.BeginForm("Approval", "Admin", FormMethod.Post, new { id = "form1" }))
+{
+<section class="content">
+    <div class="row">
+        <div class="col-12">
+            <div class="box box-solid bg-dark">
+                <div class="box-header with-border">
+                    <h3 class="box-title">Admin Awaiting Approval</h3>
+                    <h6 class="box-subtitle">Admin have been created but waiting to be approved, you can export to Copy, CSV, Excel, PDF & Print</h6>
+                </div>
+                <!-- /.box-header -->
+                <div class="box-body">
+                    <div class="table-responsive">
+                        <table id="example" class="table table-bordered table-hover display nowrap margin-top-10 w-p100">
+                            <thead>
+                                <tr>
+                                    <th>Name</th>
+                                    <th>User ID</th>
+                                    <th>Mobile</th>
+                                    <th>Active</th>
+                                    <th>Created By</th>
+                                    <th>Date Created</th>
+                                    <th>Date Modified</th>
+                                    <th class="no-sort"></th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach (var item in Model.UserItems)
+                                {
+                                    <tr>
+                                        <td>@item.DisplayName</td>
+                                        <td>@item.UserID</td>
+                                        <td>@item.Number</td>
+                                        <td>@item.Active</td>
+                                        <td>@item.AddedBy</td>
+                                        <td>@String.Format("{0:dd-MMM-yyyy HH:mm}", @item.AddedDate)</td>
+                                        <td>@String.Format("{0:dd-MMM-yyyy HH:mm}", @item.ModifiedDate)</td>
+                                        <td>
+                                            <a href="javascript:;" data-id="@item.UserID" class="btn btn-sm btn-primary approve-button" title="Approve Users" data-toggle="modal" data-target="#modaldemo1"><i class="fa fa-arrow-up"></i></a>
+                                        </td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div id="modaldemo1" class="modal fade effect-rotate-left" role="dialog" aria-hidden="true">
+            <div class="modal-dialog modal-lg" role="document">
+                <div class="modal-content">
+                    <form>
+                        <div class="modal-header">
+                            <h6 class="tx-14 mg-b-0 tx-uppercase tx-inverse tx-bold" id="modal-header-text">Approve Users</h6>
+                            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                <span aria-hidden="true">&times;</span>
+                            </button>
+                        </div>
+                        <div class="modal-body wd-800">
+                            <div class="row">
+                                <div class="form-group col-lg-4">
+                                    <label class="section-label-sm tx-gray-500">User ID</label>
+                                    <h6 class="tx-gray-800" id="UserId"></h6>
+                                </div>
+                                <div class="form-group col-lg-4">
+                                    <label for="DisplayName" class="section-label-sm tx-gray-500">Name</label>
+                                    <h6 id="DisplayName" class="tx-gray-800" />
+                                </div>
+                                <div class="form-group col-lg-4">
+                                    <label for="EmailAddress" class="section-label-sm tx-gray-500">E-Mail</label>
+                                    <h6 id="EmailAddress" class="tx-gray-800" />
+                                </div>
+                                <div class="form-group col-lg-4">
+                                    <label for="MobilePhone" class="section-label-sm tx-gray-500">Mobile</label>
+                                    <h6 id="MobilePhone" class="tx-gray-800" />
+                                </div>
+                                <div class="form-group col-lg-4">
+                                    <label for="Active" class="section-label-sm tx-gray-500">Active?</label>
+                                    <h6 id="Active" class="tx-gray-800" />
+                                </div>
+                            </div>
+                            <div class="row role-row">
+                            </div>
+                        </div>
+                        <div class="modal-footer">
+                            <button type="submit" id="SaveButton" class="btn btn-primary">Approve</button>
+                            <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+}
+<style type="text/css">
+    .my-swal {
+        z-index: 100000000000 !important;
+    }
+
+    .swal2-container {
+        display: -webkit-box;
+        display: flex;
+        position: fixed;
+        z-index: 300000;
+    }
+</style>
+<script src="~/assets/vendor_components/jquery/dist/jquery.js"></script>
+<script type="text/javascript">
+    $(document).ready(function () {
+        var _Form = $('#form1');
+
+        $('#example').find('.approve-button').each(function () {
+            $(this).click(function (e) {
+                e.preventDefault();
+                _Form[0].reset();
+                msgbox = $('#msgbox2', _Form);
+                var _id = $(this).data('id');
+                $.ajax({
+                    type: "GET",
+                    url: "/api/user/fetch?Id=" + _id,
+                    contentType: "application/json; charset=utf-8",
+                    async: true,
+                    success: function (response) {
+                        if (response.DisplayName != null && response.DisplayName != '') {
+                            $('#UserId').text(response.UserID);
+                            $('#DisplayName').text(response.DisplayName);
+                            $('#MobilePhone').text(response.Phone);
+                            $('#Active').text(response.Active);
+                            $('#EmailAddress').text(response.EmailAddress);
+                            $('#RoleGrid').find(".user-role").each(function () {
+                                $(this).attr('disabled', true);
+                            });
+                            if (response.Roles != null && response.Roles.length > 0) {
+                                var roleTable = '<table class="table table-detail"><thead><tr><th>Roles</th></tr></thead><tbody>';
+                                for (index = 0; index < response.Roles.length; index++) {
+                                    try {
+                                        roleTable += '<tr><td>' + response.Roles[index].Name + '</td></tr>';
+                                    }
+                                    catch (ea) { }
+                                }
+                                roleTable += '</tbody></table>';
+                                $('.role-row').html(roleTable);
+                            }
+                            $('#modaldemo1').modal({
+                                'backdrop': 'static',
+                                "keyboard": false,
+                                "show": true
+                            });
+                        }
+                        else {
+                            var msg = 'Error Occurred.<br/>';
+                            msg += response.ResponseMsg;
+                            errorHandler(msg);
+                        }
+                    },
+                    error: function (XMLHttpRequest, textStatus, errorThrown) {
+                        errorHandler(errorThrown);
+                        hideWait();
+                    }
+                }).done(function () {
+
+                });
+            });
+        });
+
+        _Form.submit(function (e) {
+            e.preventDefault(); 
+            var _id = $('#UserId').text();
+            Swal.fire({
+                customClass: {
+                    container: 'swal2-container'
+                },
+                title: 'Approve Admin?',
+                text: 'You want to Approve New Admin?',
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonText: 'Yes, Approve!',
+                cancelButtonText: 'No, dont'
+            }).then((result) => {
+                if (result.value) {
+                    $.ajax({
+                        type: "get",
+                        url: "/api/user/approve?Id=" + _id,
+                        contentType: "application/json; charset=utf-8",
+                        async: true,
+                        cache: false,
+                        success: function (resp) {
+                            if (resp.ResponseCode !== null && resp.ResponseCode === '00') {
+                                swal.fire(
+                                    "Success!",
+                                    resp.ResponseMsg,
+                                    "success"
+                                ).then(function () {
+                                    window.location.replace("../../Admin/");
+                                });
+                            }
+                            if (resp.ResponseCode !== null && resp.ResponseCode === '96') {
+                                swal.fire(
+                                    "Warning!",
+                                    resp.ResponseMsg,
+                                    "error"
+                                );
+                            }
+                        },
+                        failure: function (resp) {
+                            swal.fire(
+                                "Internal Error",
+                                "Oops, Error Occurred.",
+                                "error"
+                            );
+                        }
+                    });
+
+                } else if (result.dismiss === Swal.DismissReason.cancel) {
+                    Swal.fire(
+                        'Cancelled',
+                        'You have cancelled your request',
+                        'error'
+                    )
+                }
+            })
+        });
+    });
+</script>

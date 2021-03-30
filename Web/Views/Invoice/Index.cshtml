@@ -1,0 +1,48 @@
+﻿@model  Web.Models.InvoiceModel
+@{
+    ViewBag.Title = "Invoices";
+}
+
+@using (Html.BeginForm("Index", "invoice", FormMethod.Post, new { id = "forminvoice" }))
+{
+    <section class="content">
+        <div class="row">
+            <div class="col-12">
+                <div class="box box-solid bg-dark">
+                    <div class="box-header with-border">
+                        <h3 class="box-title">List of Invoices</h3>
+                        <h6 class="box-subtitle">Manage all generated invoices on the Portal here. You can export to Copy, CSV, Excel, PDF & Print</h6>
+                    </div>
+                    <div class="box-body">
+                        <div class="table-responsive">
+                            <table id="example" class="table table-bordered table-hover display nowrap margin-top-10 w-p100">
+                                <thead>
+                                    <tr>
+                                        <th>Invoice</th>
+                                        <th>Customer&nbsp;ID</th>
+                                        <th>Customer&nbsp;Name</th>
+                                        <th>Invoice&nbsp;Number</th>
+                                        <th>Date&nbsp;Generated</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @foreach (var item in Model.InvoiceItems)
+                                    {
+                                    <tr>
+                                        <td>@Html.ActionLink("Download Invoice", "Download", new { ImageName = @item.InvoiceURL }, new { @class = "btn btn-sm btn-success" })</td>
+                                        <td>@item.CustomerID</td>
+                                        <td>@item.CustomerName</td>
+                                        <td>@item.InvoiceNumber</td>
+                                        <td>@String.Format("{0:dd-MMM-yyyy hh:mm}", @item.InvoiceDate)</td>
+                                    </tr>
+                                    }
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+}
+

@@ -1,0 +1,54 @@
+﻿@using Web.Application
+<ul class="sidebar-menu" data-widget="tree">
+    <li class="nav-devider"></li>
+   
+    <li class="active">
+        <a href="@Url.Action("Index", "Dashboard")">
+            <i class="fa fa-home"></i> <span>Dashboard</span>
+            <span class="pull-right-container">
+                <i class="fa fa-angle-right pull-right"></i>
+            </span>
+        </a>
+    </li>
+    
+    @{
+        List<API.Models.Menu> _menus = LoggedInUser.Privileges;
+        foreach (API.Models.Menu m in _menus)
+        {
+            <li class="treeview">
+                <a href="#">
+                    <i class="@m.Class"></i>
+                    <span>@m.Name</span>
+                    <span class="pull-right-container">
+                        <i class="fa fa-angle-right pull-right"></i>
+                    </span>
+                </a>
+                @if (m.SubMenus.Count > 0)
+                {
+                    var subs = m.SubMenus.Where(a => a.Parent == 0)
+                        .OrderBy(a => a.Order)
+                        .Select(a => new { a.Name, a.Link })
+                                .Distinct().ToList();
+                    <ul class="treeview-menu">
+                        @foreach (var s in subs)
+                        {
+                        <li>
+                            @{
+                                string[] arr = s.Link.Split(new string[] { "/" }, StringSplitOptions.RemoveEmptyEntries);
+                                string _controller = arr[0].Replace("-", "");
+                                string _action = "Index";
+                                if (arr.Length > 1)
+                                {
+                                    _action = arr[1].Replace("-", "");
+                                }
+                            }
+                            <a href="@Url.Action(_action, _controller)">@s.Name</a>
+
+                        </li>
+                        }
+                    </ul>
+                }
+            </li>
+        }
+    }
+</ul>

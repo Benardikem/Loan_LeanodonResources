@@ -1,0 +1,409 @@
+﻿
+@model Web.Models.UserModel
+
+@{
+    ViewBag.Title = "Users";
+}
+@section breadcrumb {
+    <li class="breadcrumb-item active" aria-current="page">Manage Customers</li>
+}
+@using Web.Extensions
+@Html.MessageLabel()
+@using (Html.BeginForm("Index", "Users", FormMethod.Post, new { id = "form1" }))
+{
+
+    <section class="content">
+        <div class="row">
+            <div class="col-12">
+                <div class="box box-solid bg-dark">
+                    <div class="box-header with-border">
+                        <h3 class="box-title">All Users</h3>
+                        <h6 class="box-subtitle">Customers and Admin are listed here, you can export to Copy, CSV, Excel, PDF & Print</h6>
+                    </div>
+                    <!-- /.box-header -->
+                    <div class="box-body">
+                        <div class="table-responsive">
+                            <table id="example" class="table table-bordered table-hover display nowrap margin-top-10 w-p100">
+                                <thead>
+                                    <tr>
+                                        <th>Display&nbsp;Name</th>
+                                        <th>User&nbsp;ID</th>
+                                        <th>Mobile</th>
+                                        <th>Email&nbsp;Address</th>
+                                        <th>Active</th>
+                                        <th>Approved</th>
+                                        <th>Created&nbsp;By</th>
+                                        <th>Date&nbsp;Created</th>
+                                        <th>Roles</th>
+                                        <th class="no-sort" data-priority="0"></th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @foreach (var item in Model.UserItems)
+                                    {
+                                        var _norole = "No role assigned";
+                                        <tr>
+                                            <td><a href="javascript:;" data-id="@item.UserID" class="view-butto">@item.DisplayName</a></td>
+                                            <td>@item.UserID</td>
+                                            <td>@item.Number</td>
+                                            <td>@item.EmailAddress</td>
+                                            <td>@item.Active</td>
+                                            <td>@item.Approved</td>
+                                            <td>@item.AddedBy</td>
+                                            <td>@String.Format("{0:dd-MMM-yyyy}", @item.AddedDate)</td>
+                                            <td>
+                                                @*@roles*@
+                                                @if (item.Roles != null && item.Roles.Count() > 0)
+                                                {
+                                                    <ul>
+                                                        @foreach (var _role in item.Roles)
+                                                        {
+                                                            <li>@_role </li>
+                                                        }
+                                                    </ul>
+                                                }
+                                                else
+                                                {
+                                                    //No role assigned
+                                                    @_norole
+                                                }
+                                            </td>
+                                            <td>
+                                                <div class="dropdown">
+                                                    <a id="dLabel" href="#" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" title="Action">...</a>
+                                                    <div class="dropdown-menu dropdown-menu-right" aria-labelledby="dLabel">
+                                                        <nav class="nav">
+                                                            <a href="javascript:;" data-id="@item.UserID" class="nav-link edit-button" title="Edit" data-toggle="modal" data-target="#modaldemo1"><i class="fa fa-edit"></i> Edit</a>
+                                                            <a href="javascript:;" data-id="@item.UserID" class="nav-link reset-password" title="Reset Password"><i class="fa fa-lock"></i> Reset Password</a>
+                                                        </nav>
+                                                    </div>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                    }
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- BASIC MODAL -->
+    <div id="modaldemo1" class="modal fade effect-rotate-left" role="dialog" aria-hidden="true">
+        <div class="modal-dialog modal-lg" role="document">
+            <div class="modal-content">
+                <form>
+                    <div class="modal-header">
+                        <h6 class="tx-14 mg-b-0 tx-uppercase tx-inverse tx-bold" id="modal-header-text"></h6>
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
+                    <div class="modal-body wd-800 my-modal-body">
+                        <input id="Mode" type="hidden" value="NEW" />
+                        <div class="row">
+                            <div class="form-group col-lg-6">
+                                <label for="bank" class="col-form-label"> User ID : <span class="tx-danger">*</span></label>
+                                <input id="UserID" type="text" maxlength="100" required="required" class="form-control" name="UserID" />
+                            </div>
+                            <div class="form-group col-lg-6">
+                                <label for="DisplayName" class="col-form-label"> Name : <span class="tx-danger">*</span></label>
+                                <input id="DisplayName" type="text" maxlength="100" required="required" class="form-control" name="DisplayName" />
+                            </div>
+                            <div class="form-group col-lg-6">
+                                <label for="EmailAddress" class="col-form-label"> E-Mail : <span class="tx-danger">*</span></label>
+                                <input id="EmailAddress" type="email" maxlength="100" required="required" class="form-control" name="EmailAddress" />
+                            </div>
+                            <div class="form-group col-lg-6">
+                                <label for="Mobile" class="col-form-label"> Mobile : <span class="tx-danger">*</span></label>
+                                <input id="MobilePhone" type="text" maxlength="100" required="required" class="form-control" name="MobilePhone" />
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="form-group col-lg-6  ichack-input">
+                                <label for="Mobile" class="col-form-label">  Active ?: </label>
+                                <label class="checkbox-inline">
+                                    <input id="Active" type="checkbox" name="Active" />
+                                    Active?
+                                </label>
+                            </div>
+                        </div>
+                        <table class="table table-striped table-bordered" id="RoleGrid">
+                            <thead>
+                                <tr>
+                                    <th colspan="2">Roles</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach (var item in Model.RoleItems)
+                                {
+                                    <tr>
+                                        <td>@item.Name</td>
+                                        <td class="ichack-input">
+                                            <input id="user-role" type="checkbox" class="user-role minimal-red" data-role-id="@item.Id" />
+                                        </td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="submit" id="SaveButton" class="btn btn-primary">Save changes</button>
+                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+    <input id="UsersId" type="hidden" />
+}
+
+<script src="~/assets/vendor_components/jquery/dist/jquery.js"></script>
+<script type="text/javascript">
+    $(document).ready(function () {
+        var _Form = $('#form1');
+
+        $('#AddNew').on('click', function (e) {
+            e.preventDefault();
+            _Form[0].reset();
+            $('#UserID').val('');
+            $('#UserCategoryDropDown').val('0');
+            $('#Mode').val('NEW');
+            $('#DisplayName').attr('disabled', false);
+            $('#EmailAddress').attr('disabled', false);
+            $('#MobilePhone').attr('disabled', false);
+            $("#SaveButton").show();
+            $('#fetch-button').attr('disabled', false);
+            $('#RoleGrid').find(".user-role").each(function () {
+                $(this).attr('disabled', false);
+            });
+            $('#modal-header-text').text('Create New User');
+            $('#modaldemo1').modal({
+                'backdrop': 'static',
+                "keyboard": false,
+                "show": true
+            });
+        });
+
+        $('#payment').find('.edit-button').each(function () {
+            $(this).click(function (e) {
+                e.preventDefault();
+                _Form[0].reset();
+                showWait();
+                msgbox = $('#msgbox2', _Form);
+                var _id = $(this).data('id');
+                var ajaxRequest = $.ajax({
+                    type: "GET",
+                    url: "/api/user/fetch?Id=" + _id,
+                    contentType: "application/json; charset=utf-8",
+                    async: true,
+                    success: function (response) {
+                        if (response.DisplayName != null && response.DisplayName != '') {
+                            $('#Mode').val('EDIT');
+                            $('#UserID').val(response.UserID);
+                            //$('#UserCategoryDropDown').val('0');
+                            $('#DisplayName').val(response.DisplayName);
+                            $('#DisplayName').attr('disabled', false);
+                            $('#EmailAddress').val(response.EmailAddress);
+                            $('#EmailAddress').attr('disabled', false);
+                            $('#MobilePhone').val(response.Phone);
+                            $('#MobilePhone').attr('disabled', false);
+                            $('#Active').prop('checked', response.Active);
+                            $('#DividendPriviledge').prop('checked', response.DividendPriviledge);
+                            $('#fetch-button').attr('disabled', false);
+                            $('#RoleGrid').find(".user-role").each(function () {
+                                $(this).attr('disabled', false);
+                            });
+                            if (response.Roles != null && response.Roles.length > 0) {
+                                for (index = 0; index < response.Roles.length; index++) {
+                                    var cntr = $("input[data-role-id='" + response.Roles[index].RoleId + "']");
+                                    if (typeof cntr !== undefined && cntr.length > 0) {
+                                        $(cntr).prop('checked', true);
+                                    }
+                                }
+                            }
+                            $("#SaveButton").show();
+                            hideWait();
+                            $('#modal-header-text').text('Modify User');
+                            $('#modaldemo1').modal({
+                                'backdrop': 'static',
+                                "keyboard": false,
+                                "show": true
+                            });
+                        }
+                        else {
+                            var msg = 'Error Occurred.<br/>';
+                            msg += response.ResponseMsg;
+                            errorHandler(msg);
+                            hideWait();
+                        }
+                    },
+                    error: function (XMLHttpRequest, textStatus, errorThrown) {
+                        errorHandler(errorThrown);
+                        hideWait();
+                    }
+                }).done(function () {
+
+                });
+            });
+        });
+        $('#payment').find('.reset-password').each(function () {
+            $(this).click(function (e) {
+                e.preventDefault();
+                _Form[0].reset();
+                //showWait();
+                msgbox = $('#msgbox2', _Form);
+                var _id = $(this).data('id');
+                bootbox.confirm({
+                    title: "Confirmation",
+                    message: "Are you sure you want to reset user password?",
+                    buttons: {
+                        cancel: {
+                            label: '<i class="fa fa-times"></i> Cancel'
+                        },
+                        confirm: {
+                            label: '<i class="fa fa-check"></i> Confirm'
+                        }
+                    },
+
+                    callback: function (result) {
+                        if (result) {
+                            RequestStarted($("#SaveButton"));
+                            try {
+                                var request = {
+                                    UserID: _id,
+                                };
+                                var _data = JSON.stringify(request);
+                                //console.log(_data);
+                                $.ajax({
+                                    type: "POST",
+                                    url: "/api/user/resetpass",
+                                    data: _data,
+                                    contentType: "application/json; charset=utf-8",
+                                    async: true,
+                                    success: function (response) {
+                                        if (response.ResponseCode != null && response.ResponseCode == '00') {
+                                            showAlert({ message: '"Your password has been reset successfully', type: 'success', callback: RequestEnded });
+                                        }
+                                        else {
+                                            showAlert({ message: response.ResponseMsg, type: 'error', callback: RequestEnded });
+                                        }
+                                    },
+                                    error: function (XMLHttpRequest, textStatus, errorThrown) {
+                                        showAlert({ message: errorThrown, type: 'error', callback: RequestEnded });
+                                    }
+                                });
+                            }
+                            catch (e) {
+                                showAlert({ message: 'Error Occurred', type: 'error', callback: RequestEnded });
+                            }
+                        }
+                    }
+                });
+            });
+        });
+        _Form.submit(function (e) {
+            msgbox = $('#msgbox', _Form);
+            e.preventDefault();
+            bootbox.confirm({
+                title: "Confirmation",
+                message: "Are you sure you want to submit the request?",
+                buttons: {
+                    cancel: {
+                        label: '<i class="fa fa-times"></i> Cancel'
+                    },
+                    confirm: {
+                        label: '<i class="fa fa-check"></i> Confirm'
+                    }
+                },
+
+                callback: function (result) {
+                    if (result) {
+                        RequestStarted($("#SaveButton"));
+                        var roles = [];
+                        $('#RoleGrid').find(".user-role").each(function () {
+                            if ($(this).is(':checked')) {
+                                var role = {
+                                    RoleId: $(this).data('role-id')
+                                };
+                                roles.push(role);
+                            }
+                        });
+                        try {
+                            var request = {
+                                Mode: $('#Mode').val(),
+                                UserID: $('#UserID').val(),
+                                Name: $('#DisplayName').val(),
+                                EmailAddress: $('#EmailAddress').val(),
+                                Mobile: $('#MobilePhone').val(),
+                                Active: $('#Active').is(':checked'),
+                                Roles: roles
+                            };
+                            var _data = JSON.stringify(request);
+                            //console.log(_data);
+                            $.ajax({
+                                type: "POST",
+                                url: "/api/user/add",
+                                data: _data,
+                                contentType: "application/json; charset=utf-8",
+                                async: true,
+                                success: function (response) {
+                                    if (response.ResponseCode != null && response.ResponseCode == '00') {
+                                        showAlert({
+                                            message: response.ResponseMsg,
+                                            type: 'success',
+                                            callback: function () { location.reload(); }
+                                        });
+                                    }
+                                    else {
+                                        showAlert({
+                                            message: response.ResponseMsg,
+                                            type: 'error',
+                                            callback: RequestEnded
+                                        });
+                                    }
+                                },
+                                error: function (XMLHttpRequest, textStatus, errorThrown) {
+                                    showAlert({
+                                        message: response.ResponseMsg,
+                                        type: 'error',
+                                        callback: RequestEnded
+                                    });
+                                }
+                            });
+                        }
+                        catch (e) {
+                            showAlert({ message: 'Error occurred', type: 'error' });
+                            RequestEnded();
+                        }
+                    }
+                }
+            });
+        });
+
+        try {
+
+            $('#payment').DataTable({
+                'order': [[0, 'asc']],
+                'columnDefs': [{ orderable: false, 'targets': [8] }],
+                "language": {
+                    "emptyTable": "There are no request at present.",
+                    "zeroRecords": "There were no matching requests found."
+                },
+                "searching": false, // <-- this should be set to true
+                "ordering": true, // <-- this should be set to true
+                "paging": true, // <-- this should be set to true
+                "pageLength": 25,
+                'dom': 'Bfrtip',
+                "Filter": false,
+                "bLengthChange": false,
+                "responsive": true,
+            });
+        }
+        catch (e) { }
+
+    });
+</script>
+

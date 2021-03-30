@@ -1,0 +1,302 @@
+﻿@model Web.Models.DashboardViewModel
+@{
+    ViewBag.Title = "Apply for Loan";
+}
+<section class="content">
+    @if (Web.Application.LoggedInUser.UserCategory == Web.Codes.Constants.UserCategory.USER)
+    {
+        <div class="row">
+            <div class="col-lg-12 col-12">
+                <div class="box">
+                    <div class="box-body">
+                        <form id="formUserCreateLoan">
+                            <div class="form-group">
+                                <label class="mr-25">Loan Type</label>
+                                <div class="input-group">
+                                    <select id="LoanType" required class="form-control">
+                                        <option value="">Please choose a Loan Type</option>
+                                        <option value="Reducing Balance Basis Loan">Reducing Balance Basis Loan</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <div class="row">
+                                    <div class="col-12">
+                                        <label class="mr-25">Enter Amount</label>
+                                        <div class="input-group">
+                                            <span class="input-group-addon"><i class="font-size-16" title="NGN">₦</i></span>
+                                            <input class="form-control" id="LoanAmount" type="number" value="" required>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <div class="row">
+                                    <div class="col-6">
+                                        <div class="input-group">
+                                            <label class="mr-25">Please Select the Month you are Applying for</label>
+                                            <select id="RepaymentMonth" required="required" class="form-control">
+                                                <option value="">Please Select month</option>
+                                                <option value="1">January</option>
+                                                <option value="2">Febuary</option>
+                                                <option value="3">March</option>
+                                                <option value="4">April</option>
+                                                <option value="5">May</option>
+                                                <option value="6">June</option>
+                                                <option value="7">July</option>
+                                                <option value="8">August</option>
+                                                <option value="9">September</option>
+                                                <option value="10">October</option>
+                                                <option value="11">November</option>
+                                                <option value="12">December</option>
+                                            </select>
+                                        </div>
+                                    </div>
+                                    <div class="col-6">
+                                        <div class="input-group">
+                                            <label class="mr-25"> Select the Year</label>
+                                            <select id="RepaymentYear" required="required" class="form-control">
+                                                <option value="">Please Select Year</option>
+                                                <option value="2020">2020</option>
+                                                <option value="2021">2021</option>
+                                                <option value="2022">2022</option>
+                                            </select>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <div class="row">
+                                    <div class="col-12">
+                                        <label class="mr-25">Enter Customer 1 Email</label>
+                                        <div class="input-group">
+                                            <input class="form-control" id="CustomerEmail" type="email" required>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <h3 class="mb-0">Terms of Service</h3>
+                            <p>Please ensure you have read through our Terms of service, a click on the button below confirms that you agree to the terms.</p>
+                            <button type="submit" class="btn btn-success btn-lg btn-block">Apply Now!</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    }
+
+    @if (Web.Application.LoggedInUser.UserCategory == Web.Codes.Constants.UserCategory.ADMIN)
+    {
+        <div class="row">
+            <div class="col-lg-12 col-12">
+                <div class="box">
+                    <div class="box-body">
+                        <form id="formAdminCreateLoan">
+                            <div class="form-group">
+                                <label class="mr-25">Enter Customers Name (Using Customer1 for Demo Purpose)</label>
+                                <div class="input-group">
+                                    <input type="text" id="Customer1_admin" value="Customer1" readonly class="form-control" />
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label class="mr-25">Loan Type</label>
+                                <div class="input-group">
+                                    <select id="LoanType" required class="form-control">
+                                        <option value="">Please choose a Loan Type</option>
+                                        <option value="Reducing Balance Basis Loan">Reducing Balance Basis Loan</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <div class="row">
+                                    <div class="col-12">
+                                        <label class="mr-25">Enter Amount</label>
+                                        <div class="input-group">
+                                            <span class="input-group-addon"><i class="font-size-16" title="NGN">₦</i></span>
+                                            <input class="form-control" id="LoanAmount_admin" type="number" value="" required>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <div class="row">
+                                    <div class="col-6">
+                                        <div class="input-group">
+                                            <label class="mr-25">Please Select the Month you are Applying for</label>
+                                            <select id="RepaymentMonth_admin" required="required" class="form-control">
+                                                <option value="">Please Select month</option>
+                                                <option value="1">January</option>
+                                                <option value="2">Febuary</option>
+                                                <option value="3">March</option>
+                                                <option value="4">April</option>
+                                                <option value="5">May</option>
+                                                <option value="6">June</option>
+                                                <option value="7">July</option>
+                                                <option value="8">August</option>
+                                                <option value="9">September</option>
+                                                <option value="10">October</option>
+                                                <option value="11">November</option>
+                                                <option value="12">December</option>
+                                            </select>
+                                        </div>
+                                    </div>
+                                    <div class="col-6">
+                                        <div class="input-group">
+                                            <label class="mr-25"> Select the Year</label>
+                                            <select id="RepaymentYear_admin" required="required" class="form-control">
+                                                <option value="">Please Select Year</option>
+                                                <option value="2020">2020</option>
+                                                <option value="2021">2021</option>
+                                                <option value="2022">2022</option>
+                                            </select>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <div class="row">
+                                    <div class="col-12">
+                                        <label class="mr-25">Enter Customer 1 Email</label>
+                                        <div class="input-group">
+                                            <input class="form-control" id="CustomerEmail_admin" type="email" required>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <h3 class="mb-0">Terms of Service</h3>
+                            <p>Please ensure you have read through our Terms of service, a click on the button below confirms that you agree to the terms.</p>
+                            <button type="submit" class="btn btn-success btn-lg btn-block">Apply Now!</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    }
+</section>
+
+<script src="~/assets/vendor_components/jquery/dist/jquery.js"></script>
+<script type="text/javascript">
+
+    $(document).ready(function () {
+       
+
+        $("#formUserCreateLoan").submit(function (e) {
+            e.preventDefault();
+            swal.fire({
+                title: 'Submit Application?',
+                showCancelButton: true,
+                confirmButtonText: 'Yes, Submit',
+                showLoaderOnConfirm: true,
+                preConfirm: function () {
+                    return new Promise(function (resolve) {
+                        setTimeout(function () {
+                            resolve();
+                        }, 2000);
+                    });
+                },
+                allowOutsideClick: false
+            }).then(function () {
+
+                $.ajax({
+                    type: "POST",
+                    url: "/api/loan/create",
+                    data: {
+                        'LoanAmount': $('#LoanAmount').val(),
+                        'CustomerEmail': $('#CustomerEmail').val(),
+                        'LoanType': $("#LoanType option:selected").val(),
+                        'Month': $('#RepaymentMonth option:selected').val(),
+                        'Year': $('#RepaymentYear option:selected').val(),
+                    },
+                    cache: false,
+                    success: function (resp) {
+                        if (resp.ResponseCode !== null && resp.ResponseCode === '00') {
+                            swal.fire(
+                                "Success!",
+                                resp.ResponseMsg,
+                                "success"
+                            ).then(function () {
+                                window.location.replace("../Dashboard/");
+                            });
+                        }
+                        if (resp.ResponseCode !== null && resp.ResponseCode === '96') {
+                            swal.fire(
+                                "Error Occured!",
+                                resp.ResponseMsg,
+                                "warning"
+                            );
+                        }
+                    },
+                    failure: function (resp) {
+                        swal.fire(
+                            "Internal Error",
+                            "Oops, Error Occurred.",
+                            "error"
+                        );
+                    }
+                });
+            });
+        });
+
+
+        $("#formAdminCreateLoan").submit(function (e) {
+            e.preventDefault();
+            swal.fire({
+                title: 'Submit Application (Admin)?',
+                showCancelButton: true,
+                confirmButtonText: 'Yes, Submit',
+                showLoaderOnConfirm: true,
+                preConfirm: function () {
+                    return new Promise(function (resolve) {
+                        setTimeout(function () {
+                            resolve();
+                        }, 2000);
+                    });
+                },
+                allowOutsideClick: false
+            }).then(function () {
+
+                $.ajax({
+                    type: "POST",
+                    url: "/api/loan/admincreate",
+                    data: {
+                        'Customer1_admin': $('#Customer1_admin').val(),
+                        'LoanAmount': $('#LoanAmount_admin').val(),
+                        'CustomerEmail': $('#CustomerEmail_admin').val(),
+                        'Month': $('#RepaymentMonth_admin option:selected').val(),
+                        'Year': $('#RepaymentYear_admin option:selected').val(),
+                    },
+                    cache: false,
+                    success: function (resp) {
+                        if (resp.ResponseCode !== null && resp.ResponseCode === '00') {
+                            swal.fire(
+                                "Success!",
+                                resp.ResponseMsg,
+                                "success"
+                            ).then(function () {
+                                window.location.replace("../Dashboard/");
+                            });
+                        }
+                        if (resp.ResponseCode !== null && resp.ResponseCode === '96') {
+                            swal.fire(
+                                "Error Occured!",
+                                resp.ResponseMsg,
+                                "warning"
+                            );
+                        }
+                    },
+                    failure: function (resp) {
+                        swal.fire(
+                            "Internal Error",
+                            "Oops, Error Occurred.",
+                            "error"
+                        );
+                    }
+                });
+            });
+        });
+    });
+</script>
+
+

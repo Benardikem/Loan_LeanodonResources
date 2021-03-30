@@ -1,0 +1,364 @@
+﻿@model Web.Models.RoleModel
+@{
+    ViewBag.Title = "Roles";
+}
+@section breadcrumb {
+    <li class="breadcrumb-item active" aria-current="page">Roles</li>
+}
+
+@using Web.Extensions
+@Html.MessageLabel()
+@using (Html.BeginForm("Index", "Roles", FormMethod.Post, new { id = "form1" }))
+{
+    <section class="content">
+        <div class="row">
+            <div class="col-12">
+                <div class="box box-solid bg-dark">
+                    <div class="box-header with-border">
+                        <h3 class="box-title">All Roles</h3>
+                        <h6 class="box-subtitle">Roles are for assigning priviledges to administrators of the portal, you can export to Copy, CSV, Excel, PDF & Print</h6>
+                    </div>
+                   
+                    <div class="box-body">
+                        <div style="text-align:center;">
+                            <a href="#" data-toggle="tooltip" data-placement="top" title="Add New Role" class="btn btn-sm btn-primary add-button" id="AddNew"><i class="fa fa-plus"></i>&nbsp; Add New Role</a>
+                        </div>
+                        <div class="table-responsive">
+                            <table id="example" class="table table-bordered table-hover display nowrap margin-top-10 w-p100">
+                                <thead>
+                                    <tr>
+                                        <th>Name</th>
+                                        <th>Description</th>
+                                        <th>Active</th>
+                                        <th>Approved</th>
+                                        <th>Created By</th>
+                                        <th>Date Created</th>
+                                        <th>Date Modified</th>
+                                        <th class="no-sort"></th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @foreach (var item in Model.RoleItems)
+                                    {
+
+                                        <tr>
+                                            <td><a href="javascript:;" data-id="@item.Id" class="view-butto">@item.Name</a></td>
+                                            <td>@item.Description</td>
+                                            <td>@item.Active</td>
+                                            <td>@item.Approved</td>
+                                            <td>@item.AddedBy</td>
+                                            <td>@String.Format("{0:dd-MMM-yyyy HH:mm}", @item.AddedDate)</td>
+                                            <td>@String.Format("{0:dd-MMM-yyyy HH:mm}", @item.ModifiedDate)</td>
+                                            <td>
+                                                <a href="javascript:;" data-id="@item.Id" class="btn btn-sm btn-primary edit-button" title="Edit" data-toggle="modal" data-target="#modaldemo1"><i class="fa fa-edit"></i></a>
+                                            </td>
+                                        </tr>
+                                    }
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+    
+
+    <div id="modaldemo1" class="modal fade effect-rotate-left" role="dialog" aria-hidden="true">
+        <div class="modal-dialog modal-lg" role="document">
+            <div class="modal-content">
+                <form>
+                    <div class="modal-header">
+                        <h6 class="tx-14 mg-b-0 tx-uppercase tx-inverse tx-bold" id="modal-header-text"></h6>
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
+                    <div class="modal-body my-modal-body wd-800">
+                        <input id="Mode" type="hidden" value="NEW" />
+                        <input id="RoleId" type="hidden" name="Id" value="0" />
+                        <div class="row">
+                            <div class="form-group col-lg-6">
+                                <label for="bank" class="col-form-label">  Name: <span class="tx-danger">*</span></label>
+                                <input id="RoleName" type="text" maxlength="50" required="required" class="form-control" name="Name" />
+                            </div>
+                            <div class="form-group col-lg-6">
+                                <label for="DisplayName" class="col-form-label"> Description: <span class="tx-danger">*</span></label>
+                                <input id="RoleDescription" type="text" maxlength="150" class="form-control" name="Description" />
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="form-group col-lg-6">
+                                <label for="Mobile" class="col-form-label">  Active ?: </label>
+                                <label class="checkbox-inline">
+                                    <input id="Active" type="checkbox" name="Active" />
+                                </label>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="form-group col-lg-12">
+                                @if (Model.SubMenuItems != null)
+                                {
+                                    <table class="table table-striped table-bordered wd-500" id="PrivGrid">
+                                        <thead>
+                                            <tr>
+                                                <th>Menu</th>
+                                                <th>Privileges</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            @foreach (var group in Model.SubMenuItems.GroupBy(item => item.MenuName))
+                                            {
+                                                foreach (var title in group.Take(1))
+                                                {
+                                                    <tr>
+                                                        <td colspan="2" style="font-weight:bold; background-color:#eee" align="center">@title.MenuName</td>
+                                                    </tr>
+                                                }
+                                                foreach (var item in group)
+                                                {
+                                                    <tr>
+                                                        <td>@item.Name</td>
+                                                        <td>
+                                                            <input id="sub-privilege" type="checkbox" class="sub-privilege" data-submenu-id="@item.Id" />
+                                                        </td>
+                                                    </tr>
+                                                }
+                                            }
+                                        </tbody>
+                                    </table>
+                                }
+                            </div>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="submit" id="SaveButton" class="btn btn-primary">Save changes</button>
+                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+}
+
+
+<script type="text/javascript">
+    $(document).ready(function () {
+        var _Form = $('#form1');
+        $('#AddNew').on('click', function (e) {
+            e.preventDefault();
+            _Form[0].reset();
+            $('#RoleId').val('0');
+            $('#RoleDescription').attr('disabled', false);
+            $('#RoleName').attr('disabled', false);
+            //$('#User_Category').attr('disabled', false);
+            $("#SaveButton").show();
+            $('#PrivGrid').find(".sub-privilege").each(function () {
+                $(this).attr('disabled', false);
+            });
+            $('#modal-header-text').text('Create New Role');
+            $('#modaldemo1').modal({
+                'backdrop': 'static',
+                "keyboard": false,
+                "show": true
+            });
+        });
+
+        $('#example').find('.edit-button').each(function () {
+            $(this).click(function (e) {
+                e.preventDefault();
+                _Form[0].reset();
+                showWait();
+                msgbox = $('#msgbox2', _Form);
+                var _id = $(this).data('id');
+                var ajaxRequest = $.ajax({
+                    type: "GET",
+                    url: "/api/user/fetch-role?Id=" + _id,
+                    contentType: "application/json; charset=utf-8",
+                    async: true,
+                    success: function (response) {
+                        if (response.Name != null && response.Name != '') {
+                            $('#RoleId').val(response.ID);
+                            $('#RoleName').val(response.Name);
+                            $('#RoleName').attr('disabled', false);
+                            $('#RoleDescription').val(response.Description);
+                            $('#RoleDescription').attr('disabled', false);
+                            //$('#User_Category').val(response.UserCategoryId);
+                            //$('#User_Category').attr('disabled', false);
+                            $('#Active').prop('checked', response.Active);
+                            $('#PrivGrid').find(".sub-privilege").each(function () {
+                                $(this).attr('disabled', false);
+                            });
+                            if (response.Submenus != null && response.Submenus.length > 0) {
+                                for (index = 0; index < response.Submenus.length; index++) {
+                                    var cntr = $("input[data-submenu-id='" + response.Submenus[index].SubMenuId + "']");
+                                    if (typeof cntr !== undefined && cntr.length > 0) {
+                                        $(cntr).prop('checked', true);
+                                    }
+                                }
+                            }
+                            $("#SaveButton").show();
+                            hideWait();
+                            $('#modal-header-text').text('Modify Role');
+                            $('#myModal').modal({
+                                'backdrop': 'static',
+                                "keyboard": false,
+                                "show": true
+                            });
+                        }
+                        else {
+                            var msg = 'Error Occurred.<br/>';
+                            msg += response.ResponseMsg;
+                            errorHandler(msg);
+                            hideWait();
+                        }
+                    },
+                    error: function (XMLHttpRequest, textStatus, errorThrown) {
+                        errorHandler(errorThrown);
+                        hideWait();
+                    }
+                }).done(function () {
+
+                });
+            });
+        });
+
+        $('#example').find('.view-button').each(function () {
+            $(this).click(function (e) {
+                e.preventDefault();
+                _Form[0].reset();
+                showWait();
+                msgbox = $('#msgbox2', _Form);
+                var _id = $(this).data('id');
+                var ajaxRequest = $.ajax({
+                    type: "GET",
+                    url: "/api/user/fetch-role?Id=" + _id,
+                    contentType: "application/json; charset=utf-8",
+                    async: true,
+                    success: function (response) {
+                        if (response.Name != null && response.Name != '') {
+                            $('#RoleId').val(response.ID);
+                            $('#RoleName').val(response.Name);
+                            $('#RoleName').attr('disabled', true);
+                            $('#RoleDescription').val(response.Description);
+                            $('#RoleDescription').attr('disabled', true);
+                            //$('#User_Category').val(response.UserCategoryId);
+                            //$('#User_Category').attr('disabled', true);
+                            $('#Active').prop('checked', response.Active);
+                            $('#PrivGrid').find(".sub-privilege").each(function () {
+                                $(this).attr('disabled', true);
+                            });
+                            if (response.Submenus != null && response.Submenus.length > 0) {
+                                for (index = 0; index < response.Submenus.length; index++) {
+                                    var cntr = $("input[data-submenu-id='" + response.Submenus[index].SubMenuId + "']");
+                                    if (typeof cntr !== undefined && cntr.length > 0) {
+                                        $(cntr).prop('checked', true);
+                                    }
+                                }
+                            }
+                            $("#SaveButton").hide();
+                            hideWait();
+                            $('#modal-header-text').text('View Role');
+                            $('#myModal').modal({
+                                'backdrop': 'static',
+                                "keyboard": false,
+                                "show": true
+                            });
+                        }
+                        else {
+                            var msg = 'Error Occurred.<br/>';
+                            msg += response.ResponseMsg;
+                            errorHandler(msg);
+                            hideWait();
+                        }
+                    },
+                    error: function (XMLHttpRequest, textStatus, errorThrown) {
+                        errorHandler(errorThrown);
+                        hideWait();
+                    }
+                }).done(function () {
+
+                });
+            });
+        });
+
+        _Form.submit(function (e) {
+            msgbox = $('#msgbox', _Form);
+            e.preventDefault();
+            bootbox.confirm({
+                title: "Confirmation",
+                message: "Are you sure you want to submit the request?",
+                buttons: {
+                    cancel: {
+                        label: '<i class="fa fa-times"></i> Cancel',
+                    },
+                    confirm: {
+                        label: '<i class="fa fa-check"></i> Confirm',
+                    }
+                },
+                callback: function (result) {
+                    if (result) {
+                        RequestStarted($("#SaveButton"));
+                        try {
+                            var subs = [];
+                            $('#PrivGrid').find(".sub-privilege").each(function () {
+                                if ($(this).is(':checked')) {
+                                    var sub = {
+                                        SubMenuId: $(this).data('submenu-id')
+                                    };
+                                    subs.push(sub);
+                                }
+                            });
+                            var request = {
+                                Id: $('#RoleId').val(),
+                                Name: $('#RoleName').val(),
+                                Description: $('#RoleDescription').val(),
+                                Active: $('#Active').is(':checked'),
+                                //UserCategoryId: $('#User_Category').val(),
+                                Submenus: subs
+                            };
+                            var _data = JSON.stringify(request);
+                            console.log(_data);
+                            $.ajax({
+                                type: "POST",
+                                url: "/api/user/add-role",
+                                data: _data,
+                                contentType: "application/json; charset=utf-8",
+                                async: true,
+                                success: function (response) {
+                                    if (response.ResponseCode != null && response.ResponseCode == '00') {
+                                        showAlert({
+                                            message: response.ResponseMsg,
+                                            type: 'success',
+                                            callback: function () { location.reload(); }
+                                        });
+                                    }
+                                    else {
+                                        showAlert({
+                                            message: response.ResponseMsg,
+                                            type: 'error',
+                                            callback: RequestEnded
+                                        });
+                                    }
+                                },
+                                error: function (XMLHttpRequest, textStatus, errorThrown) {
+                                    errorHandler(errorThrown);
+                                    showAlert({
+                                        message: response.ResponseMsg,
+                                        type: 'error',
+                                        callback: RequestEnded
+                                    });
+                                }
+                            });
+                        }
+                        catch (e) {
+                            showAlert({ message: 'Error occurred', type: 'error' });
+                            RequestEnded();
+                        }
+                    }
+                }
+            });
+        });
+    });
+</script>

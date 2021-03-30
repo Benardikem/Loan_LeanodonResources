@@ -1,0 +1,352 @@
+﻿@{
+    ViewBag.Title = "Repay a Loan";
+}
+
+@section breadcrumb {
+    <li class="breadcrumb-item active" aria-current="page">Loan Repayment</li>
+}
+<section class="content">
+    <div class="row">
+        <div class="col-lg-6 col-12">
+            <div class="box">
+                <div class="box-header with-border">
+                    <h4 class="box-title">Manual Repayment</h4>
+                    <div class="box-controls pull-right">
+                    </div>
+                </div>
+                <form id="formLoanrepay">
+                    <div class="box-body">
+                        <div class="form-group">
+                            <label class="mr-25">Select From your Loan List</label>
+                            <div class="input-group">
+                                <select id="LoanType" required="required" class="form-control">
+                                </select>
+                            </div>
+                        </div>
+                        <input id="hdnBalanceRemaining" type="hidden" />
+                        <input id="hdnLoanAmount" type="hidden" />
+                        <div class="form-group">
+                            <div class="row">
+                                <div class="col-7">
+                                    <label class="mr-25">Loan Status (can only repay an APPROVED loan)</label>
+                                    <div class="input-group">
+                                        <input class="form-control" id="LoanStatus" type="text" readonly="readonly">
+                                    </div>
+                                </div>
+                                <div class="col-5">
+                                    <label class="mr-25">Is Loan Fully Repaid?</label>
+                                    <div class="input-group">
+                                        <input class="form-control" id="LoanRepaid" type="text" readonly="readonly">
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <div class="row">
+                                <div class="col-7">
+                                    <label class="mr-25">Balance paid on this Loan</label>
+                                    <div class="input-group">
+                                        <input class="form-control" id="BalanceRecieved" type="text" readonly="readonly">
+                                    </div>
+                                </div>
+                                <div class="col-5">
+                                    <label class="mr-25">Balance remaining on this Loan</label>
+                                    <div class="input-group">
+                                        <input class="form-control" id="BalanceRemaining" type="text" readonly="readonly">
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <div class="row">
+                                <div class="col-7">
+                                    <label class="mr-25">Loan was applied for in</label>
+                                    <div class="input-group">
+                                        <input class="form-control" id="LoanApplied" type="text" readonly="readonly">
+                                    </div>
+                                </div>
+                                <div class="col-5">
+                                    <label class="mr-25">Next Repayment will be for</label>
+                                    <div class="input-group">
+                                        <input class="form-control" id="LoanNextPayment" type="text" readonly="readonly">
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <div class="row">
+                                <div class="col-12">
+                                    <label class="mr-25">Last Comment on this Loan</label>
+                                    <div class="input-group">
+                                        <input class="form-control" id="LastComment" type="text" readonly="readonly">
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <div class="row">
+                                <div class="col-12">
+                                    <label class="mr-25">Upload any proof of payment (to enable us track the payment easily)</label>
+                                    <div class="input-group">
+                                        <input class="form-control" type="file" readonly="readonly">
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <div class="row">
+                                <label class="mr-25">Please Select the Month & Year you are Applying for</label>
+                                <div class="col-6">
+                                    <div class="input-group">
+                                        <select id="RepaymentMonth" required="required" class="form-control">
+                                            <option value="">Please Select month</option>
+                                            <option value="1">January</option>
+                                            <option value="2">Febuary</option>
+                                            <option value="3">March</option>
+                                            <option value="4">April</option>
+                                            <option value="5">May</option>
+                                            <option value="6">June</option>
+                                            <option value="7">July</option>
+                                            <option value="8">August</option>
+                                            <option value="9">September</option>
+                                            <option value="10">October</option>
+                                            <option value="11">November</option>
+                                            <option value="12">December</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="col-6">
+                                    <div class="input-group">
+                                        <select id="RepaymentYear" required="required" class="form-control">
+                                            <option value="">Please Select Year</option>
+                                            <option value="2020">2020</option>
+                                            <option value="2021">2021</option>
+                                            <option value="2022">2022</option>
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <div class="row">
+                                <div class="col-12">
+                                    <label class="mr-25">Enter Amount to Repay</label>
+                                    <div class="input-group">
+                                        <span class="input-group-addon"><i class="font-size-16" title="NGN">₦</i></span>
+                                        <input class="form-control" id="AmountPaid" type="number" required="required">
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <div class="row">
+                                <div class="col-12">
+                                    <label class="mr-25">Enter Customer 1 Email (for demo purpose)</label>
+                                    <div class="input-group">
+                                        <input class="form-control" id="CustomerEmail" type="email" required>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <h3 class="mb-0">Terms of Service</h3>
+                        <p>Please ensure you have read through our Terms of service, a click on the button below confirms that you agree to the terms.</p>
+                        <button type="submit" class="btn btn-success btn-lg btn-block">Apply Now!</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+
+        <div class="col-lg-6 col-12">
+            <div class="box">
+                <div class="box-header with-border">
+                    <h4 class="box-title">Quick Repayment Via Online Channels</h4>
+                    <div class="box-controls pull-right">
+                    </div>
+                </div>
+                <form id="formLoanrepayOnline">
+                    <div class="box-body">
+                        <div class="form-group">
+                            <label class="mr-25">Select From your Loan List</label>
+                            <div class="input-group">
+                                <select id="LoanType_online" required="required" class="form-control">
+                                </select>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <div class="row">
+                                <div class="col-12">
+                                    <label class="mr-25">What Month are you Repaying for</label>
+                                    <div class="input-group">
+                                        <select id="RepaymentMonth_online" required="required" class="form-control">
+                                            <option value="">Please Select month</option>
+                                            <option value="January">January</option>
+                                            <option value="Febuary">Febuary</option>
+                                            <option value="March">March</option>
+                                            <option value="April">April</option>
+                                            <option value="May">May</option>
+                                            <option value="June">June</option>
+                                            <option value="July">July</option>
+                                            <option value="August">August</option>
+                                            <option value="September">September</option>
+                                            <option value="October">October</option>
+                                            <option value="November">November</option>
+                                            <option value="December">December</option>
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <div class="row">
+                                <div class="col-12">
+                                    <label class="mr-25">Enter Amount to Repay</label>
+                                    <div class="input-group">
+                                        <span class="input-group-addon"><i class="font-size-16" title="NGN">₦</i></span>
+                                        <input class="form-control" id="RepayAmount" type="number" required="required">
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <button type="submit" class="btn btn-success btn-lg btn-block">Pay Through Paystack/Flutterwave</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</section>
+
+
+<script src="~/assets/vendor_components/jquery/dist/jquery.js"></script>
+<script type="text/javascript">
+    $(document).ready(function () {
+
+        const formatter = new Intl.NumberFormat('en-US', {
+            style: 'currency',
+            currency: 'NGN',
+            minimumFractionDigits: 2
+        })
+
+        $.ajax({
+            type: "GET",
+            url: "/api/loan/fetchUsersLoan",
+            data: "{}",
+            async: true,
+            success: function (data) {
+                var s = '<option value="">Please choose a Loan Type</option>';
+                for (var i = 0; i < data.length; i++) {
+                    var amount = formatter.format(data[i].LoanAmount);
+                    s += '<option value="' + data[i].LoanApplicationNumber + '">Loan Application Number : ' + data[i].LoanApplicationNumber + '(Amount : ' + amount + ')</option>';
+
+                }
+                $("#LoanType").html(s);
+                $("#LoanType_online").html(s);
+                $("#LoanType_online").html(s);                
+            }
+        });
+
+
+        $("#LoanType").change(function () {
+            var _id = this.value;
+
+            $.ajax({
+                type: "GET",
+                url: "/api/loan/fetchLoanDetails?Id=" + _id,
+                contentType: "application/json; charset=utf-8",
+                async: true,
+                success: function (response) {
+                    console.log(response);
+                    if (response.UserID !== null && response.UserID !== '') {
+                        var LoanBal = formatter.format(response.BalanceRecieved);
+                        $("#BalanceRecieved").val(LoanBal);
+                        var LoanBalRem = formatter.format(response.BalanceRemaining);
+                        $("#BalanceRemaining").val(LoanBalRem);
+                        $("#LoanRepaid").val(response.AppStatus);
+                        $("#LoanStatus").val(response.LoanStatus);
+                        $("#LastComment").val(response.Comment);
+                        $("#hdnBalanceRemaining").val(response.BalanceRemaining); 
+                        $("#LoanApplied").val(response.MonthYear);
+                        $("#LoanNextPayment").val(response.LoanNextPayment);
+                        $("#hdnLoanAmount").val(response.LoanAmount);                         
+                    }
+                    else {
+                        swal.fire(
+                            "Error occurred!",
+                            response.ResponseMsg,
+                            "warning"
+                        )
+                    }
+                },
+                error: function (XMLHttpRequest, textStatus, errorThrown) {
+                }
+            }).done(function () {
+
+            });
+
+        });
+
+        $("#formLoanrepay").submit(function (e) {
+            e.preventDefault();
+            swal.fire({
+                title: 'Submit Application?',
+                showCancelButton: true,
+                confirmButtonText: 'Yes, Submit',
+                showLoaderOnConfirm: true,
+                preConfirm: function () {
+                    return new Promise(function (resolve) {
+                        setTimeout(function () {
+                            resolve();
+                        }, 2000);
+                    });
+                },
+                allowOutsideClick: false
+            }).then(function () {
+
+                $.ajax({
+                    type: "POST",
+                    url: "/api/loan/RepayLoan",
+                    data: {
+                        'BalanceRemaining': $('#hdnBalanceRemaining').val(),
+                        'LoanApplicationNumber': $("#LoanType option:selected").val(),
+                        'CustomerEmail': $('#CustomerEmail').val(),
+                        'AmountPaid': $('#AmountPaid').val(),
+                        'LoanStatus': $('#LoanStatus').val(),
+                        'Month': $('#RepaymentMonth option:selected').val(),
+                        'Year': $('#RepaymentYear option:selected').val(),
+                        'LoanAmount': $('#hdnLoanAmount').val()      
+                    },
+                    cache: false,
+                    success: function (resp) {
+                        if (resp.ResponseCode !== null && resp.ResponseCode === '00') {
+                            swal.fire(
+                                "Success!",
+                                resp.ResponseMsg,
+                                "success"
+                            ).then(function () {
+                                window.location.replace("../LoanManager/Repay");
+                            });
+                        }
+                        if (resp.ResponseCode !== null && resp.ResponseCode === '96') {
+                            swal.fire(
+                                "Error Occured!",
+                                resp.ResponseMsg,
+                                "error"
+                            );
+                        }
+                    },
+                    failure: function (resp) {
+                        swal.fire(
+                            "Internal Error",
+                            "Oops, Error Occurred.",
+                            "error"
+                        );
+                    }
+                });
+            });
+        });
+
+    });
+</script>

@@ -1,0 +1,381 @@
+﻿@model Web.Models.LoanModel
+@{
+    ViewBag.Title = "Repayment History";
+}
+@section breadcrumb {
+    <li class="breadcrumb-item active" aria-current="page">History of Repayments</li>
+}
+<style type="text/css">
+    .my-swal {
+        z-index: 100000000000 !important;
+    }
+
+    .swal2-container {
+        display: -webkit-box;
+        display: flex;
+        position: fixed;
+        z-index: 300000;
+    }
+</style>
+
+@using (Html.BeginForm("RepaymentHistory", "LoanManager", FormMethod.Post, new { id = "formRepaymentHistory" }))
+{
+    <section class="content">
+        <div class="row">
+            <div class="col-12">
+                <div class="box box-solid bg-dark">
+                    <div class="box-header with-border">
+                        <h3 class="box-title">All Repayments and their Status</h3>
+                        <h6 class="box-subtitle">Export data to Copy, CSV, Excel, PDF & Print</h6>
+                    </div>
+                    <input id="HdnLoanGUID" type="hidden" />
+                    <!-- /.box-header -->
+                    <div class="box-body">
+                        <div class="table-responsive">
+                            @if (Web.Application.LoggedInUser.UserCategory == Web.Codes.Constants.UserCategory.ADMIN)
+                            {
+                                <table id="example" class="table table-bordered table-hover display nowrap margin-top-10 w-p100">
+                                    <thead>
+                                        <tr>
+                                            <th>Take&nbsp;Action</th>
+                                            <th>App.&nbsp;Number</th>
+                                            <th>Amt&nbsp;Loaned</th>
+                                            <th>Amount&nbsp;Paid</th>
+                                            <th>Balance&nbsp;Before&nbsp;Payment</th>
+                                            <th>Balance&nbsp;After&nbsp;Payment</th>
+                                            <th>Payment&nbsp;For</th>
+                                            <th>Status</th>
+                                            <th>Created&nbsp;Date</th>
+                                            <th>Last&nbsp;Action&nbsp;By</th>
+                                            <th>Last&nbsp;Action&nbsp;date</th>
+                                            <th>Fully&nbsp;Repaid?</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        @foreach (var item in Model.LoanRepaymentItems)
+                                        {
+                                        <tr>
+                                            <td><a data-id="@item.LoanApplicationNumber" href="javascript:;" class="take-action btn btn-sm btn-purple" data-toggle="modal" data-target="#myModal">Take&nbsp;Action</a></td>
+                                            <td>@item.LoanApplicationNumber</td>
+                                            <td>@String.Format("{0:#,##0}", @item.LoanAmount) </td>
+                                            <td>@String.Format("{0:#,##0}", @item.AmountPaid)</td>
+                                            <td>@String.Format("{0:#,##0}", @item.BalanceBeforeP) </td>
+                                            <td>@String.Format("{0:#,##0}", @item.BalanceAfterP)</td>
+                                            <td>@item.MonthYear</td>
+                                            <td>@item.RepaymentStatus</td>
+                                            <td>@String.Format("{0:dd-MMM-yyyy}", @item.CreatedDate)</td>
+                                            <td>@item.ApprovedBy</td>
+                                            <td>@String.Format("{0:dd-MMM-yyyy}", @item.ApprovedDate)</td>
+
+                                            <td>@item.FullyRepaid</td>
+                                        </tr>
+                                        }
+                                    </tbody>
+                                </table>
+                            }
+
+
+                            @if (Web.Application.LoggedInUser.UserCategory == Web.Codes.Constants.UserCategory.USER)
+                            {
+                                <table id="example" class="table table-bordered table-hover display nowrap margin-top-10 w-p100">
+                                    <thead>
+                                        <tr>
+                                            <th>App.&nbsp;Number</th>
+                                            <th>Amt.&nbsp;Loaned</th>
+                                            <th>Amount&nbsp;Paid</th>
+                                            <th>Balance&nbsp;Before&nbsp;Payment</th>
+                                            <th>Balance&nbsp;After&nbsp;Payment</th>
+                                            <th>Payment&nbsp;For</th>
+                                            <th>Status</th>
+                                            <th>Created&nbsp;Date</th>
+                                            <th>Last&nbsp;Action&nbsp;By</th>
+                                            <th>Last&nbsp;Action&nbsp;date</th>
+                                            <th>Fully&nbsp;Repaid?</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        @foreach (var item in Model.LoanRepaymentItems)
+                                        {
+                                        <tr>
+                                            <td>@item.LoanApplicationNumber</td>
+                                            <td>@String.Format("{0:#,##0}", @item.LoanAmount) </td>
+                                            <td>@String.Format("{0:#,##0}", @item.AmountPaid)</td>
+                                            <td>@String.Format("{0:#,##0}", @item.BalanceBeforeP) </td>
+                                            <td>@String.Format("{0:#,##0}", @item.BalanceAfterP)</td>
+                                            <td>@item.MonthYear</td>
+                                            <td>@item.RepaymentStatus</td>
+                                            <td>@String.Format("{0:dd-MMM-yyyy}", @item.CreatedDate)</td>
+                                            <td>@item.ApprovedBy</td>
+                                            <td>@String.Format("{0:dd-MMM-yyyy}", @item.ApprovedDate)</td>
+                                            <td>@item.FullyRepaid</td>
+                                        </tr>
+                                        }
+                                    </tbody>
+                                </table>
+                            }
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+
+    <div class="modal fade text-left" id="myModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel17"
+         aria-hidden="true">
+        <div class="modal-dialog modal-lg" role="document">
+            <div class="modal-content">
+                <input type="hidden" id="hdnLoanAmount" value="" />
+                <input type="hidden" id="hdnAmountPaid" value="" />
+                <div class="modal-header">
+                    <h4 class="modal-title" id="modal-header-text">Take an Action</h4>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <input type="hidden" id="HdnID" value="0" />
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label for="BusinessName">User ID</label>
+                                <span class="form-control" id="UserID"></span>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label for="BusinessName">Loan Application Number</label>
+                                <span class="form-control" id="LoanApplicationNumber"></span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label for="BusinessName">Loan Amount</label>
+                                <span class="form-control" id="LoanAmount"></span>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label for="BusinessName">Amount Repaid</label>
+                                <span class="form-control" id="AmountRepaid"></span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-12">
+                            <div class="form-group">
+                                <label for="Action">Action</label>
+                                <select class="form-control" id="Action" name="Action" required="required">
+                                    <option value="">--Please Select--</option>
+                                    <option value="APPROVED">APPROVED</option>
+                                    <option value="UNDER-REVIEW">UNDER REVIEW</option>
+                                    <option value="PROCESSING">PROCESSING</option>
+                                    <option value="PENDING">PENDING</option>
+                                    <option value="REJECTED">REJECTED</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-12">
+                            <div class="form-group">
+                                <label for="ComplaintName">Enter a Brief Comment </label>
+                                <input type="text" id="Comment" class="form-control" required />
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-12">
+                            <div class="form-group">
+                                <label for="ComplaintName">Enter Customer1 Email (for demo purpose) </label>
+                                <input type="text" id="CustomerEmail" class="form-control" required />
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn grey btn-outline-secondary" data-dismiss="modal">Close</button>
+                    <button type="submit" class="btn btn-outline-primary">Save changes</button>
+                </div>
+            </div>
+        </div>
+    </div>
+}
+
+
+<script src="~/assets/vendor_components/jquery/dist/jquery.js"></script>
+<script type="text/javascript">
+    $(document).ready(function () {
+        $('#example').find('.view-invoice').each(function () {
+            $(this).click(function (e) {
+                e.preventDefault();
+                var _id = $(this).data('id');
+                url = "../Invoices/" + _id + ".html";
+                window.open(url, '_blank');
+            });
+        });
+
+        const formatter = new Intl.NumberFormat('en-US', {
+            style: 'currency',
+            currency: 'NGN',
+            minimumFractionDigits: 2
+        })
+
+        $('#example').find('.take-action').each(function () {
+            $(this).click(function (e) {
+                e.preventDefault();
+                var _id = $(this).data('id');
+                $.ajax({
+                    type: "GET",
+                    url: "/api/loan/fetchRepaymentnfo?Id=" + _id,
+                    contentType: "application/json; charset=utf-8",
+                    async: true,
+                    success: function (response) {
+                        if (response.UserID !== null && response.UserID !== '') {
+                            $('#UserID').text(response.UserID);
+                            $('#LoanApplicationNumber').text(response.LoanApplicationNumber);
+                            var LoanAmount = formatter.format(response.LoanAmount);
+                            $('#LoanAmount').text(LoanAmount);
+                            var AmountRepaid = formatter.format(response.AmountPaid);
+                            $('#AmountRepaid').text(AmountRepaid);
+                            $('#Repaid').prop('checked', response.Repaid);
+                            $('#Comment').text(response.Comment);
+                            $('#hdnLoanAmount').text(response.LoanAmount);
+                            $('#hdnAmountPaid').text(response.AmountPaid);
+                            $("#HdnLoanGUID").val(response.LoanGUID);
+                            $("#HdnID").val(response.ID);
+                            
+                        }
+                        else {
+                            var msg = 'Error Occurred.<br/>';
+                            alert(msg += response.ResponseMsg);
+                        }
+                    },
+                    error: function (XMLHttpRequest, textStatus, errorThrown) {
+                    }
+                }).done(function () {
+
+                });
+            });
+        });
+
+        $("#formRepaymentHistory").submit(function (e) {
+            e.preventDefault();
+            swal.fire({
+                //target: document.getElementById('myModal'),
+                customClass: {
+                    container: 'swal2-container'
+                },
+                title: 'Submit Action?',
+                showCancelButton: true,
+                confirmButtonText: 'Yes, Submit',
+                showLoaderOnConfirm: true,
+                preConfirm: function () {
+                    return new Promise(function (resolve) {
+                        setTimeout(function () {
+                            resolve();
+                        }, 2000);
+                    });
+                },
+                allowOutsideClick: false
+            }).then(function () {
+
+                $.ajax({
+                    type: "POST",
+                    url: "/api/loan/takeRepayaction",
+                    data: {
+                        'UserID': $('#UserID').text(),
+                        'LoanApplicationNumber': $('#LoanApplicationNumber').text(),
+                        'Comment': $('#Comment').text(),
+                        'AmountPaid': $('#hdnAmountPaid').text(),
+                        'LoanAmount': $('#hdnLoanAmount').text(),
+                        'Action': $("#Action option:selected").val(),
+                        'CustomerEmail': $('#CustomerEmail').val(),
+                        'LoanGUID': $('#HdnLoanGUID').val(),
+                        'ID': $('#HdnID').val()
+                    },
+                    cache: false,
+                    success: function (resp) {
+                        if (resp.ResponseCode !== null && resp.ResponseCode === '00') {
+                            swal.fire(
+                                "Success!",
+                                resp.ResponseMsg,
+                                "success"
+                            ).then(function () {
+                                window.location.replace("../LoanManager/RepaymentHistory");
+                            });
+                        }
+                        if (resp.ResponseCode !== null && resp.ResponseCode === '96') {
+                            swal.fire(
+                                "Warning!",
+                                resp.ResponseMsg,
+                                "warning"
+                            );
+                        }
+                    },
+                    failure: function (resp) {
+                        swal.fire(
+                            "Internal Error",
+                            "Oops, Error Occurred.",
+                            "error"
+                        );
+                    }
+                });
+            });
+        });
+
+
+        $('#dtable').find('.app-details').each(function (e) {
+            $(this).click(function (e) {
+                e.preventDefault();
+                var _id = $(this).data('id');
+                var url = '../Applications/AllApplicationDetails?' + _id;
+                window.open(url, '_blank');
+            });
+        });
+
+        $('#dtable').find('.app-history').each(function (e) {
+            $(this).click(function (e) {
+                e.preventDefault();
+                var _id = $(this).data('id');
+                var url = '../Applications/AllApplicationHistory?' + _id;
+                window.open(url, '_blank');
+            });
+        });
+
+        $('#dtable').find('.edit-button').each(function () {
+            $(this).click(function (e) {
+                e.preventDefault();
+                var _id = $(this).data('id');
+                $.ajax({
+                    type: "GET",
+                    url: "/api/br_api/fetchAppForm?Id=" + _id,
+                    contentType: "application/json; charset=utf-8",
+                    async: true,
+                    success: function (response) {
+                        if (response.ComplaintName !== null && response.ComplaintName !== '') {
+                            $('#UserID').text(response.UserID);
+                            $('#ApplicationNumber').text(response.ApplicationNumber);
+                            $('#Email').text(response.Email);
+                            $('#PhoneNumber').text(response.PhoneNumber);
+                            $('#Country').text(response.Country);
+                            $('#TransactionStatus').text(response.ApplicationStatus);
+                            $('#TransactionType').text(response.TransactionType);
+                            $('#TransactionAmount').text(response.TransactionAmount);
+                        }
+                        else {
+                            var msg = 'Error Occurred.<br/>';
+                            alert(msg += response.ResponseMsg);
+                        }
+                    },
+                    error: function (XMLHttpRequest, textStatus, errorThrown) {
+                    }
+                }).done(function () {
+
+                });
+            });
+        });
+    });
+</script>

@@ -1,0 +1,662 @@
+﻿@model Web.Models.LoanModel
+@{
+    ViewBag.Title = "Dashboard";
+}
+@section breadcrumb {
+    <li class="breadcrumb-item active" aria-current="page">Manage Applications</li>
+}
+
+<style type="text/css">
+
+    .rcorners3 {
+        border-radius: 25px;
+    }
+</style>
+<section class="content">
+    <div class="row">
+
+        @if (Web.Application.LoggedInUser.UserCategory == Web.Codes.Constants.UserCategory.ADMIN)
+        {
+            <div class="col-xl-12 col-lg-12">
+                <div class="row">
+                    <div class="box">
+                        <div class="box-body tickers-block">
+                            <ul id="webticker-1">
+                                <li><i class="fa fa-user"></i> Nkechi Kalu <span class="text-yellow"> Credit N20,000 (Sept 2020)</span></li>
+                                <li><i class="fa fa-user"></i> Chris Okotie <span class="text-yellow">  Credit N80, 000 (Sept 2020)</span></li>
+                                <li><i class="fa fa-user"></i> Charlie Onojie <span class="text-yellow"> Debit N100, 000 (Sept 2020)</span></li>
+                                <li><i class="fa fa-user"></i> Kalu Uche <span class="text-yellow"> Debit N100, 000 (Sept 2020)</span></li>
+                                <li><i class="fa fa-user"></i> Miss Ekene <span class="text-yellow"> Credit N100, 000 (Sept 2020)</span></li>
+                                <li><i class="fa fa-user"></i> Charles Uwa <span class="text-yellow"> Debit N100, 000 (Sept 2020)</span></li>
+                                <li><i class="fa fa-user"></i> Bright Nkem <span class="text-yellow"> Credit N100, 000 (Sept 2020)</span></li>
+                                <li><i class="fa fa-user"></i> Nkonye Nk <span class="text-yellow"> Debit N100, 000 (Sept 2020)</span></li>
+                                <li><i class="fa fa-user"></i> James Ibu <span class="text-yellow"> Credit N100, 000 (Sept 2020)</span></li>
+                                <li><i class="fa fa-user"></i> Pius Uka <span class="text-yellow"> Debit N100, 000 (Sept 2020)</span></li>
+                                <li><i class="fa fa-user"></i> Dan Riener <span class="text-yellow"> Credit N100, 000 (Sept 2020)</span></li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        }
+        <div class="col-xl-8 col-lg-7">
+
+            @if (Web.Application.LoggedInUser.UserCategory == Web.Codes.Constants.UserCategory.ADMIN)
+            {
+
+                <div class="row">
+                    <div class="col-12">
+                        <div class="box box-solid bg-dark">
+                            <div class="box-header with-border">
+                                <h3 class="box-title">All Customers</h3>
+                                <h6 class="box-subtitle">Customers are listed here, you can manage their accounts from here. You can export to Copy, CSV, Excel, PDF & Print</h6>
+                            </div>
+                            <div class="box-body">
+                                <div class="table-responsive">
+                                    <table id="example" class="table table-bordered table-hover display nowrap margin-top-10 w-p100">
+                                        <thead>
+                                            <tr>
+                                                <th>Display&nbsp;Name</th>
+                                                <th>Customer&nbsp;ID</th>
+                                                <th>BVN&nbsp;Number</th>
+                                                <th>Mobile</th>
+                                                <th>Email&nbsp;Address</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            @foreach (var item in Model.UserItems)
+                                            {
+                                                <tr>
+                                                    <td><a href="javascript:;" data-id="@item.UserID" class="view-butto">@item.DisplayName</a></td>
+                                                    <td>@item.UserID</td>
+                                                    <td>@item.BVN_Number</td>
+                                                    <td>@item.Number</td>
+                                                    <td>@item.EmailAddress</td>
+                                                </tr>
+                                            }
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                @*<div class="row">
+                        <div class="col-6 col-md-4 col-xl-2">
+                            <a class="box box-link-shadow text-center pull-up" href="javascript:void(0)">
+                                <div class="box-body py-25">
+                                    <h1 class="mt-5 text-primary">JAN</h1>
+                                    <p class="text-fade">2020</p>
+                                </div>
+                            </a>
+                        </div>
+                        <div class="col-6 col-md-4 col-xl-2">
+                            <a class="box box-link-shadow text-center pull-up" href="javascript:void(0)">
+                                <div class="box-body py-25">
+                                    <h1 class="mt-5 text-dark">FEB</h1>
+                                    <p class="text-fade">2020</p>
+                                </div>
+                            </a>
+                        </div>
+                        <div class="col-6 col-md-4 col-xl-2">
+                            <a class="box box-link-shadow text-center pull-up" href="javascript:void(0)">
+                                <div class="box-body py-25">
+                                    <h1 class="mt-5 text-info">MAR</h1>
+                                    <p class="text-fade">2020</p>
+                                </div>
+                            </a>
+                        </div>
+                        <div class="col-6 col-md-4 col-xl-2">
+                            <a class="box box-link-shadow text-center pull-up" href="javascript:void(0)">
+                                <div class="box-body py-25">
+                                    <h1 class="mt-5 text-warning">APR</h1>
+                                    <p class="text-fade">2020</p>
+                                </div>
+                            </a>
+                        </div>
+                        <div class="col-6 col-md-4 col-xl-2">
+                            <a class="box box-link-shadow text-center pull-up" href="javascript:void(0)">
+                                <div class="box-body py-25">
+                                    <h1 class="mt-5 text-success">MAY</h1>
+                                    <p class="text-fade">2020</p>
+                                </div>
+                            </a>
+                        </div>
+                        <div class="col-6 col-md-4 col-xl-2">
+                            <a class="box box-link-shadow text-center pull-up" href="javascript:void(0)">
+                                <div class="box-body py-25">
+                                    <h1 class="mt-5 text-danger">JUN</h1>
+                                    <p class="text-fade">2020</p>
+                                </div>
+                            </a>
+                        </div>
+                    </div>*@
+
+
+            }
+
+            @if (Web.Application.LoggedInUser.UserCategory == Web.Codes.Constants.UserCategory.USER)
+            {
+                <div class="row">
+                    <div class="col-lg-12 col-12">
+                        <div class="box">
+                            <div class="box-header with-border">
+                                <h4 class="box-title">Quick Apply for loan</h4>
+                                <div class="box-controls pull-right">
+                                </div>
+                            </div>
+                            <div class="box-body">
+                                <form id="formDashboard">
+                                    <div class="form-group">
+                                        <label class="mr-25">Loan Type</label>
+                                        <div class="input-group">
+                                            <select id="LoanType" required class="form-control">
+                                                <option value="">Please choose a Loan Type</option>
+                                                <option value="Reducing Balance Basis Loan">Reducing Balance Basis Loan</option>
+                                            </select>
+                                        </div>
+                                    </div>
+                                    <div class="form-group">
+                                        <div class="row">
+                                            <div class="col-12">
+                                                <label class="mr-25">Enter Amount</label>
+                                                <div class="input-group">
+                                                    <span class="input-group-addon"><i class="font-size-16" title="NGN">₦</i></span>
+                                                    <input class="form-control" id="LoanAmount" onkeyup="test();" type="number" required="required">
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="form-group">
+                                        <div class="row">
+                                            <div class="col-4">
+                                                <label class="mr-25">Please Select the Month & Year you are Applying for</label>
+                                            </div>
+                                            <div class="col-3">
+                                                <div class="input-group">
+                                                    <select id="RepaymentMonth" required="required" class="form-control">
+                                                        <option value="">Please Select month</option>
+                                                        <option value="1">January</option>
+                                                        <option value="2">Febuary</option>
+                                                        <option value="3">March</option>
+                                                        <option value="4">April</option>
+                                                        <option value="5">May</option>
+                                                        <option value="6">June</option>
+                                                        <option value="7">July</option>
+                                                        <option value="8">August</option>
+                                                        <option value="9">September</option>
+                                                        <option value="10">October</option>
+                                                        <option value="11">November</option>
+                                                        <option value="12">December</option>
+                                                    </select>
+                                                </div>
+                                            </div>
+                                            <div class="col-3">
+                                                <div class="input-group">
+                                                    <select id="RepaymentYear" required="required" class="form-control">
+                                                        <option value="">Please Select Year</option>
+                                                        <option value="2020">2020</option>
+                                                        <option value="2021">2021</option>
+                                                        <option value="2022">2022</option>
+                                                    </select>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="form-group">
+                                        <div class="row">
+                                            <div class="col-12">
+                                                <label class="mr-25">Enter Customer 1 Email (for demo purpose)</label>
+                                                <div class="input-group">
+                                                    <input class="form-control" id="CustomerEmail" type="email" required>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <h3 class="mb-0">Terms of Service</h3>
+                                    <p>Please ensure you have read through our Terms of service, a click on the button below confirms that you agree to the terms.</p>
+                                    <button type="submit" class="btn btn-success btn-lg btn-block">Apply Now!</button>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="col-6 col-md-4 col-xl-2">
+                        <a class="box box-link-shadow text-center pull-up" href="javascript:void(0)">
+                            <div class="box-body py-25">
+                                <h1 class="mt-5 text-primary">JAN</h1>
+                                <p class="text-fade">2020</p>
+                            </div>
+                        </a>
+                    </div>
+                    <div class="col-6 col-md-4 col-xl-2">
+                        <a class="box box-link-shadow text-center pull-up" href="javascript:void(0)">
+                            <div class="box-body py-25">
+                                <h1 class="mt-5 text-dark">FEB</h1>
+                                <p class="text-fade">2020</p>
+                            </div>
+                        </a>
+                    </div>
+                    <div class="col-6 col-md-4 col-xl-2">
+                        <a class="box box-link-shadow text-center pull-up" href="javascript:void(0)">
+                            <div class="box-body py-25">
+                                <h1 class="mt-5 text-info">MAR</h1>
+                                <p class="text-fade">2020</p>
+                            </div>
+                        </a>
+                    </div>
+                    <div class="col-6 col-md-4 col-xl-2">
+                        <a class="box box-link-shadow text-center pull-up" href="javascript:void(0)">
+                            <div class="box-body py-25">
+                                <h1 class="mt-5 text-warning">APR</h1>
+                                <p class="text-fade">2020</p>
+                            </div>
+                        </a>
+                    </div>
+                    <div class="col-6 col-md-4 col-xl-2">
+                        <a class="box box-link-shadow text-center pull-up" href="javascript:void(0)">
+                            <div class="box-body py-25">
+                                <h1 class="mt-5 text-success">MAY</h1>
+                                <p class="text-fade">2020</p>
+                            </div>
+                        </a>
+                    </div>
+                    <div class="col-6 col-md-4 col-xl-2">
+                        <a class="box box-link-shadow text-center pull-up" href="javascript:void(0)">
+                            <div class="box-body py-25">
+                                <h1 class="mt-5 text-danger">JUN</h1>
+                                <p class="text-fade">2020</p>
+                            </div>
+                        </a>
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="col-lg-12 col-12">
+                        <div class="box box-solid bg-blue-active">
+                            <div class="box-header with-border">
+                                <h3 class="box-title">Loan Application History</h3>
+                                <h6 class="box-subtitle text-white">Details of All LOAN(S) you have applied for and their statuses</h6>
+                            </div>
+                            <!-- /.box-header -->
+                            <div class="box-body">
+                                <div class="table-responsive">
+                                    <table id="example" class="table table-bordered table-hover display nowrap margin-top-10 w-p100">
+                                        <thead>
+                                            <tr>
+                                                <th>See&nbsp;Invoice</th>
+                                                <th>Loan&nbsp;App.&nbsp;Number</th>
+                                                <th>Loan&nbsp;Amount</th>
+                                                <th>Balance&nbsp;Recieved</th>
+                                                <th>Balance&nbsp;Remaining</th>
+                                                <th>Loan&nbsp;Status</th>
+                                                <th>Month&nbsp;Applied</th>
+                                                <th>Next&nbsp;Repay</th>
+                                                <th>Last&nbsp;Action&nbsp;By</th>
+                                                <th>Last&nbsp;Action&nbsp;date</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            @foreach (var item in Model.LoanApplicationItems)
+                                            {
+                                                <tr>
+                                                    <td><a data-id="@item.LoanApplicationNumber" href="javascript:;" target="_blank" class="view-invoice btn btn-sm btn-blue">See Invoice</a></td>
+                                                    <td>@item.LoanApplicationNumber</td>
+                                                    <td>@String.Format("{0:#,##0}", @item.LoanAmount) </td>
+                                                    <td>@String.Format("{0:#,##0}", @item.BalanceRecieved)</td>
+                                                    <td>@String.Format("{0:#,##0}", @item.BalanceRemaining)</td>
+                                                    <td>@item.LoanStatus</td>
+                                                    <td>@String.Format("{0:dd-MMM-yyyy}", @item.MonthYear)</td>
+                                                    <td>@String.Format("{0:dd-MMM-yyyy}", @item.NextRepayMonth)</td>
+                                                    <td>@item.ApprovedBy</td>
+                                                    <td>@String.Format("{0:dd-MMM-yyyy}", @item.ApprovedDate)</td>
+                                                </tr>
+                                            }
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            }
+
+        </div>
+        <div class="col-xl-4 col-lg-5">
+            <!-- Profile Image -->
+            <div class="box bg-info bg-deathstar-dark">
+                <div class="box-body box-profile">
+                    <form id="uploadForm">
+                        <!-- Profile Image -->
+                        <div class="box bg-info bg-deathstar-dark">
+                            <div class="box-body box-profile">
+                                <img src="" style="overflow: hidden; position: relative; width:250px; height:250px; border-radius: 25px;" alt="User profile picture" class="rcorners3 profile-user-img rounded img-fluid mx-auto d-block img1" />
+
+                                <h2 class="profile-username text-center mb-0"></h2>
+                                <h4 class="text-center mt-0 profile-Email"><i class="fa fa-envelope-o mr-10"></i></h4>
+                            </div>
+                        </div>
+                    </form>
+
+                    @if (Web.Application.LoggedInUser.UserCategory == Web.Codes.Constants.UserCategory.ADMIN)
+                    {
+                <div style="text-align:center">
+                    <button class="btn-lg btn-blue text-center" type="submit" id="ResetButton">ADMIN RESET TEST DB</button>
+                </div>
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        @if (Web.Application.LoggedInUser.UserCategory == Web.Codes.Constants.UserCategory.ADMIN)
+        {
+            <div class="col-lg-12 col-12">
+                <div class="box box-solid bg-blue-active">
+                    <div class="box-header with-border">
+                        <h3 class="box-title">Loan Applications</h3>
+                        <h6 class="box-subtitle text-white">Details of All LOAN(S) applied for and their statuses</h6>
+                    </div>
+                    <!-- /.box-header -->
+                    <div class="box-body">
+                        <div class="table-responsive">
+                            <table id="example" class="table table-bordered table-hover display nowrap margin-top-10 w-p100">
+                                <thead>
+                                    <tr>
+                                        <th>See&nbsp;Invoice</th>
+                                        <th>LoanApp.&nbsp;Number</th>
+                                        <th>Customer&nbsp;ID</th>
+                                        <th>Loan&nbsp;Amount</th>
+                                        <th>Balance&nbsp;Recieved</th>
+                                        <th>Balance&nbsp;Remaining</th>
+                                        <th>Loan&nbsp;Status</th>
+                                        <th>Month&nbsp;Applied</th>
+                                        <th>Next&nbsp;Repay</th>
+                                        <th>Last&nbsp;Action&nbsp;By</th>
+                                        <th>Last&nbsp;Action&nbsp;date</th>
+                                        <th>Fully&nbsp;Repaid?</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @foreach (var item in Model.LoanApplicationItems)
+                                    {
+                                        <tr>
+                                            <td><a data-id="@item.LoanApplicationNumber" href="javascript:;" target="_blank" class="view-invoice btn btn-sm btn-blue">See&nbsp;Invoice</a></td>
+                                            <td>@item.LoanApplicationNumber</td>
+                                            <td>@item.CustomerID</td>
+                                            <td>@String.Format("{0:#,##0}", @item.LoanAmount) </td>
+                                            <td>@String.Format("{0:#,##0}", @item.BalanceRecieved)</td>
+                                            <td>@String.Format("{0:#,##0}", @item.BalanceRemaining)</td>
+                                            <td>@item.LoanStatus</td>
+                                            <td>@String.Format("{0:dd-MMM-yyyy}", @item.MonthYear)</td>
+                                            <td>@String.Format("{0:dd-MMM-yyyy}", @item.NextRepayMonth)</td>
+                                            <td>@item.ApprovedBy</td>
+                                            <td>@String.Format("{0:dd-MMM-yyyy}", @item.ApprovedDate)</td>
+                                            <td>@item.Repaid</td>
+                                        </tr>
+                                    }
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        }
+    </div>
+</section>
+
+
+
+
+<script src="~/assets/vendor_components/jquery/dist/jquery.js"></script>
+<script type="text/javascript">
+    $(document).ready(function () {
+
+        $.ajax({
+            type: "GET",
+            url: "/api/gen/LoggedinImageURL",
+            async: true,
+            success: function (resp) {
+                //alert(resp.ImageURL);
+                if (resp.ImageURL != null) {
+                    var src1 = resp.ImageURL;
+                    $(".img1").prop("src", src1);
+                    $('.profile-username').text(resp.DisplayName)
+                    $('.profile-Email').text(resp.Email)
+                }
+                else {
+                    var src1 = "../../default-picture.png";
+                    $(".img1").prop("src", src1);
+                    $('.profile-username').text(resp.DisplayName)
+                    $('.profile-Email').text(resp.Email)
+
+                }
+            },
+            error: function (XMLHttpRequest, textStatus, errorThrown) {
+                errorHandler(errorThrown);
+                hideWait();
+            }
+        })
+
+        $('#example').find('.view-invoice').each(function () {
+            $(this).click(function (e) {
+                e.preventDefault();
+                var _id = $(this).data('id');
+                url = "../Invoices/" + _id + ".html";
+                window.open(url, '_blank');
+            });
+        });
+
+        $("#formDashboard").submit(function (e) {
+            e.preventDefault();
+            swal.fire({
+                title: 'Submit Application?',
+                showCancelButton: true,
+                confirmButtonText: 'Yes, Submit',
+                showLoaderOnConfirm: true,
+                preConfirm: function () {
+                    return new Promise(function (resolve) {
+                        setTimeout(function () {
+                            resolve();
+                        }, 2000);
+                    });
+                },
+                allowOutsideClick: false
+            }).then(function () {
+
+                $.ajax({
+                    type: "POST",
+                    url: "/api/loan/create",
+                    data: {
+                        'LoanAmount': $('#LoanAmount').val(),
+                        'CustomerEmail': $('#CustomerEmail').val(),
+                        'LoanType': $("#LoanType option:selected").val(),
+                        'Month': $('#RepaymentMonth option:selected').val(),
+                        'Year': $('#RepaymentYear option:selected').val(),
+                    },
+                    cache: false,
+                    success: function (resp) {
+                        if (resp.ResponseCode !== null && resp.ResponseCode === '00') {
+                            swal.fire(
+                                "Success!",
+                                resp.ResponseMsg,
+                                "success"
+                            ).then(function () {
+                                window.location.replace("../Dashboard/");
+                            });
+                        }
+                        if (resp.ResponseCode !== null && resp.ResponseCode === '96') {
+                            swal.fire(
+                                "Error Occured!",
+                                resp.ResponseMsg,
+                                "warning"
+                            );
+                        }
+                    },
+                    failure: function (resp) {
+                        swal.fire(
+                            "Internal Error",
+                            "Oops, Error Occurred.",
+                            "error"
+                        );
+                    }
+                });
+            });
+        });
+
+        $("#ResetButton").click(function () {
+            alert("You are about to reset the Database AFRESH.");
+            $.ajax({
+                type: "GET",
+                url: "/Dashboard/ResetDemo",
+                data: '',
+                contentType: "application/json; charset=utf-8",
+                async: true,
+                success: function (resp) {
+                    if (resp.ResponseCode !== null && resp.ResponseCode === '00') {
+                        swal.fire(
+                            "Success!",
+                            resp.ResponseMsg,
+                            "success"
+                        ).then(function () {
+                            window.location.replace("../Dashboard/");
+                        });
+                    }
+                    if (resp.ResponseCode !== null && resp.ResponseCode === '96') {
+                        swal.fire(
+                            "Error Occured!",
+                            resp.ResponseMsg,
+                            "warning"
+                        );
+                    }
+                }
+            });
+        });
+
+        $('#dtable').find('.app-details').each(function (e) {
+            $(this).click(function (e) {
+                e.preventDefault();
+                var _id = $(this).data('id');
+                var url = '../Applications/AllApplicationDetails?' + _id;
+                window.open(url, '_blank');
+            });
+        });
+
+        $('#dtable').find('.app-history').each(function (e) {
+            $(this).click(function (e) {
+                e.preventDefault();
+                var _id = $(this).data('id');
+                var url = '../Applications/AllApplicationHistory?' + _id;
+                window.open(url, '_blank');
+            });
+        });
+
+        $('#dtable').find('.edit-button').each(function () {
+            $(this).click(function (e) {
+                e.preventDefault();
+                var _id = $(this).data('id');
+                $.ajax({
+                    type: "GET",
+                    url: "/api/br_api/fetchAppForm?Id=" + _id,
+                    contentType: "application/json; charset=utf-8",
+                    async: true,
+                    success: function (response) {
+                        if (response.ComplaintName !== null && response.ComplaintName !== '') {
+                            $('#UserID').text(response.UserID);
+                            $('#ApplicationNumber').text(response.ApplicationNumber);
+                            $('#Email').text(response.Email);
+                            $('#PhoneNumber').text(response.PhoneNumber);
+                            $('#Country').text(response.Country);
+                            $('#TransactionStatus').text(response.ApplicationStatus);
+                            $('#TransactionType').text(response.TransactionType);
+                            $('#TransactionAmount').text(response.TransactionAmount);
+                        }
+                        else {
+                            var msg = 'Error Occurred.<br/>';
+                            alert(msg += response.ResponseMsg);
+                        }
+                    },
+                    error: function (XMLHttpRequest, textStatus, errorThrown) {
+                    }
+                }).done(function () {
+
+                });
+            });
+        });
+
+        $('#dtable').find('.app-delete').each(function () {
+            $(this).click(function (e) {
+                e.preventDefault();
+                var _id = $(this).data('id');
+                var request = {
+                    'ApplicationNumber': _id
+                };
+                var _data = JSON.stringify(request);
+                Swal.fire({
+                    title: 'Are you sure?',
+                    text: 'You want to delete this Application!',
+                    icon: 'warning',
+                    showCancelButton: true,
+                    confirmButtonText: 'Yes, delete it!',
+                    cancelButtonText: 'No, dont'
+                }).then((result) => {
+                    if (result.value) {
+                        $.ajax({
+                            type: "POST",
+                            url: "/api/br_api/del-app",
+                            contentType: "application/json; charset=utf-8",
+                            data: _data,
+                            cache: false,
+                            success: function (resp) {
+                                if (resp.ResponseCode !== null && resp.ResponseCode === '00') {
+                                    swal.fire(
+                                        "Success!",
+                                        resp.ResponseMsg,
+                                        "success"
+                                    ).then(function () {
+                                        location.reload();
+                                    });
+                                }
+                                if (resp.ResponseCode !== null && resp.ResponseCode === '96') {
+                                    swal.fire(
+                                        "Warning!",
+                                        resp.ResponseMsg,
+                                        "warning"
+                                    )
+                                }
+                            },
+                            failure: function (resp) {
+                                swal.fire(
+                                    "Internal Error",
+                                    "Oops, Error Occurred.",
+                                    "error"
+                                )
+                            }
+                        });
+                    } else if (result.dismiss === Swal.DismissReason.cancel) {
+                        Swal.fire(
+                            'Cancelled',
+                            'You have cancelled your request',
+                            'error'
+                        )
+                    }
+                })
+            });
+        });
+
+
+
+    });
+</script>
+
+<style type="text/css">
+
+    .rcorners3 {
+        border-radius: 25px;
+    }
+</style>
+

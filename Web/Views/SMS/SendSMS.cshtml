@@ -1,0 +1,285 @@
+﻿@model  Web.Models.SMSModel
+@{
+    ViewBag.Title = "Send SMS";
+}
+
+@section breadcrumb {
+    <li class="breadcrumb-item active" aria-current="page">Send SMS</li>
+}
+<section class="content">
+    <div class="row">
+        <div class="col-lg-6 col-12">
+            <div class="box">
+                <div class="box-header with-border">
+                    <h4 class="box-title">Manual Repayment</h4>
+                    <div class="box-controls pull-right">
+                    </div>
+                </div>
+                <form id="formSendMessage">
+                    <div class="box-body">
+                        <div class="form-group">
+                            <label class="mr-25">Select From your Category List</label>
+                            <div class="input-group">
+                                <select id="CategoryList" required="required" class="form-control">
+                                </select>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="mr-25">Reciepients</label>
+                            <div class="input-group">
+                                <textarea rows="6" id="Reciepients" class="form-control"></textarea>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <div class="row">
+                                <div class="col-12">
+                                    <label class="mr-25">Enter Message</label>
+                                    <div class="input-group">
+                                        <textarea rows="6" id="Message" class="form-control"></textarea>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <button type="submit" class="btn btn-success btn-lg btn-block">Send Message</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+
+        <div class="col-lg-6 col-12">
+            <div class="box">
+                <div class="box-header with-border">
+                    <h4 class="box-title">SMS Reciepients</h4>
+                    <div class="box-controls pull-right">
+                    </div>
+                </div>
+                <div class="box-body">
+                    <div class="table-responsive">
+                        <table id="example" class="table table-bordered table-hover display nowrap margin-top-10 w-p100">
+                            <thead>
+                                <tr>
+                                    <th>Categories</th>
+                                    <th>Add&nbsp;Reciepient</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach (var item in Model.SMSCategoryItems)
+                                {
+                                <tr>
+                                    <td><a href="javascript:;">@item.CategoryName</a></td>
+                                    <td><a data-id="@item.Id" href="javascript:;" class="add-reciepient btn btn-sm btn-purple" data-toggle="modal" data-target="#myModal">Repay&nbsp;Loan</a></td>
+                                </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+
+<div class="modal fade text-left" id="myModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel17"
+     aria-hidden="true">
+    <div class="modal-dialog modal-lg" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title" id="modal-header-text"></h4>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <form id="AddNewReciepient">
+                    <div class="box-body">
+                        <div class="form-group">
+                            <label class="mr-25">Reciepients</label>
+                            <div class="input-group">
+                                <textarea rows="6" id="Reciepients" class="form-control"></textarea>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="mr-25">Reciepients Name</label>
+                            <div class="input-group">
+                                <input type="text" id="ReciepientsName" class="form-control" />
+                            </div>
+                        </div>
+                        <button type="submit" class="btn btn-success btn-lg btn-block">Send Message</button>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn grey btn-outline-secondary" data-dismiss="modal">Close</button>
+                <button type="submit" class="btn btn-outline-primary">Save changes</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="~/assets/vendor_components/jquery/dist/jquery.js"></script>
+<script type="text/javascript">
+    $(document).ready(function () {
+
+        $('#example').find('.add-reciepient').each(function () {
+            $(this).click(function (e) {
+                e.preventDefault();
+                var _id = $(this).data('id');
+                $.ajax({
+                    type: "GET",
+                    url: "/api/SMS/fetch?Id=" + _id,
+                    contentType: "application/json; charset=utf-8",
+                    async: true,
+                    success: function (response) {
+                        if (response.Reciepients != null && response.Reciepients != '') {                           
+                            $('#Reciepients').val(response.PhoneNumber);
+                            $("#SaveButton").show();
+                            $('#modal-header-text').text('Add SMS Reciepients for ' + response.Categoryname);
+                            $('#myModal').modal({
+                                'backdrop': 'static',
+                                "keyboard": false,
+                                "show": true
+                            });
+                        }
+                        else {
+                            swal.fire(
+                                "Internal Error",
+                                response.ResponseMsg,
+                                "error"
+                            );
+                        }
+                    },
+                    error: function (XMLHttpRequest, textStatus, errorThrown) {
+                        swal.fire(
+                            "Internal Error",
+                            response.ResponseMsg,
+                            "error"
+                        );
+                    }
+                }).done(function () {
+
+                });
+            });
+        });
+
+        $.ajax({
+            type: "GET",
+            url: "/api/loan/fetchUsersLoan",
+            data: "{}",
+            async: true,
+            success: function (data) {
+                var s = '<option value="">Please choose a Loan Type</option>';
+                for (var i = 0; i < data.length; i++) {
+                    var amount = formatter.format(data[i].LoanAmount);
+                    s += '<option value="' + data[i].LoanApplicationNumber + '">Loan Application Number : ' + data[i].LoanApplicationNumber + '(Amount : ' + amount + ')</option>';
+
+                }
+                $("#LoanType").html(s);
+                $("#LoanType_online").html(s);
+                $("#LoanType_online").html(s);
+            }
+        });
+
+
+        $("#LoanType").change(function () {
+            var _id = this.value;
+
+            $.ajax({
+                type: "GET",
+                url: "/api/loan/fetchLoanDetails?Id=" + _id,
+                contentType: "application/json; charset=utf-8",
+                async: true,
+                success: function (response) {
+                    console.log(response);
+                    if (response.UserID !== null && response.UserID !== '') {
+                        var LoanBal = formatter.format(response.BalanceRecieved);
+                        $("#BalanceRecieved").val(LoanBal);
+                        var LoanBalRem = formatter.format(response.BalanceRemaining);
+                        $("#BalanceRemaining").val(LoanBalRem);
+                        $("#LoanRepaid").val(response.AppStatus);
+                        $("#LoanStatus").val(response.LoanStatus);
+                        $("#LastComment").val(response.Comment);
+                        $("#hdnBalanceRemaining").val(response.BalanceRemaining);
+                        $("#LoanApplied").val(response.MonthYear);
+                        $("#LoanNextPayment").val(response.LoanNextPayment);
+                        $("#hdnLoanAmount").val(response.LoanAmount);
+                    }
+                    else {
+                        swal.fire(
+                            "Error occurred!",
+                            response.ResponseMsg,
+                            "warning"
+                        )
+                    }
+                },
+                error: function (XMLHttpRequest, textStatus, errorThrown) {
+                }
+            }).done(function () {
+
+            });
+
+        });
+
+        $("#AddNewReciepient").submit(function (e) {
+            e.preventDefault();
+            swal.fire({
+                title: 'Add New Reciepient?',
+                showCancelButton: true,
+                confirmButtonText: 'Yes, Add',
+                showLoaderOnConfirm: true,
+                preConfirm: function () {
+                    return new Promise(function (resolve) {
+                        setTimeout(function () {
+                            resolve();
+                        }, 2000);
+                    });
+                },
+                allowOutsideClick: false
+            }).then(function () {
+
+                $.ajax({
+                    type: "POST",
+                    url: "/api/SMS/addReciepient",
+                    data: {
+                        'BalanceRemaining': $('#hdnBalanceRemaining').val(),
+                        'LoanApplicationNumber': $("#LoanType option:selected").val(),
+                        'CustomerEmail': $('#CustomerEmail').val(),
+                        'AmountPaid': $('#AmountPaid').val(),
+                        'LoanStatus': $('#LoanStatus').val(),
+                        'Month': $('#RepaymentMonth option:selected').val(),
+                        'Year': $('#RepaymentYear option:selected').val(),
+                        'LoanAmount': $('#hdnLoanAmount').val()
+                    },
+                    cache: false,
+                    success: function (resp) {
+                        if (resp.ResponseCode !== null && resp.ResponseCode === '00') {
+                            swal.fire(
+                                "Success!",
+                                resp.ResponseMsg,
+                                "success"
+                            ).then(function () {
+                                window.location.replace("../LoanManager/Repay");
+                            });
+                        }
+                        if (resp.ResponseCode !== null && resp.ResponseCode === '96') {
+                            swal.fire(
+                                "Error Occured!",
+                                resp.ResponseMsg,
+                                "error"
+                            );
+                        }
+                    },
+                    failure: function (resp) {
+                        swal.fire(
+                            "Internal Error",
+                            "Oops, Error Occurred.",
+                            "error"
+                        );
+                    }
+                });
+            });
+        });
+
+    });
+</script>

@@ -1,0 +1,33 @@
+﻿@{
+    Layout = null;
+}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="">
+    <meta name="author" content="">
+    <title>Paper Hybrid - Access Denied</title>
+    <link rel="shortcut icon" href="~/img/favicon.ico" type="image/vnd.microsoft.icon" />
+    @Styles.Render("~/css/font-awesome")
+    @Styles.Render("~/css/ionicons")
+    @Styles.Render("~/css/application")
+</head>
+<body>
+    <div class="page-error-wrapper">
+        <div>
+            <h1 class="error-title">Access Denied</h1>
+            <h5 class="tx-sm-24 tx-normal">Oopps. You are not authorized to access this page.</h5>
+            <p class="mg-b-50"><a href="@Url.Action("Index", "Home" )" class="btn btn-error">Back to Home</a></p>
+            <p class="error-footer">&copy; Copyright @DateTime.Today.Year &copy; All Rights Reserved. MTN Nigeria.</p>
+        </div>
+
+    </div><!-- page-error-wrapper -->
+    @Scripts.Render("~/js/jquery")
+    @Scripts.Render("~/js/popper")
+    @Scripts.Render("~/js/bootstrap")
+    @Scripts.Render("~/js/application")
+</body>
+</html>

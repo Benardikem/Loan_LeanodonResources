@@ -1,0 +1,435 @@
+﻿@model Web.Models.LoanModel
+@{
+    ViewBag.Title = "Loan Management";
+}
+@section breadcrumb {
+    <li class="breadcrumb-item active" aria-current="page">History</li>
+}
+<style type="text/css">
+    .my-swal {
+        z-index: 100000000000 !important;
+    }
+
+    .swal2-container {
+        display: -webkit-box;
+        display: flex;
+        position: fixed;
+        z-index: 300000;
+    }
+
+   /* td {
+        display: block;
+        border: solid 1px #CCC;
+    }*/
+</style>
+
+@using (Html.BeginForm("History", "LoanManager", FormMethod.Post, new { id = "formLoanManager" }))
+{
+    <section class="content">
+        <div class="row">
+            <div class="col-12">
+                <div class="box box-solid bg-dark">
+                    <div class="box-header with-border">
+                        <h3 class="box-title">Manage Loans</h3>
+                        <h6 class="box-subtitle">Export data to Copy, CSV, Excel, PDF & Print</h6>
+                    </div>
+                    <!-- /.box-header -->
+                    <div class="box-body">
+                        <div class="table-responsive">
+                            @if (Web.Application.LoggedInUser.UserCategory == Web.Codes.Constants.UserCategory.ADMIN)
+                            {
+                                <table id="example" class="table table-bordered table-hover display nowrap margin-top-10 w-p100">
+                                    <thead>
+                                        <tr>
+                                            <th>REPAY&nbsp;LOAN</th>
+                                            <th>INVOICE</th>
+                                            <th>NAME&nbsp;OF&nbsp;CUSTOMERS</th>
+                                            <th>AMOUNT</th>
+                                            <th>PHONE&nbsp;NO.</th>
+                                            <th>RATE</th>
+                                            <th>TENOR</th>
+                                            <th>INVST.&nbsp;DATE</th>
+                                            <th>MAT.&nbsp;DATE</th>
+                                            <th>INT.&nbsp;DUE</th>
+                                            <th>CAPT.&nbsp;PAID</th>
+                                            <th>BAL&nbsp;OUT</th>
+                                            <th>PAYMT&nbsp;DATE</th>
+                                            <th>FULLY&nbsp;REPAID?</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        @foreach (var item in Model.LoanApplicationItems)
+                                        {
+                                        <tr class="row-fully-paid No">
+                                            <td><a data-id="@item.LoanApplicationNumber" href="javascript:;" class="take-action btn btn-sm btn-purple" data-toggle="modal" data-target="#myModal">Repay&nbsp;Loan</a></td>
+                                            <td>@Html.ActionLink("Download Invoice", "Download", new { ImageName = @item.InvoiceURL }, new { @class = "btn btn-sm btn-success" })</td>
+                                            <td class="row-fully-paid-table-td">@item.DisplayName</td>
+                                            <td>@String.Format("{0:#,##0}", @item.LoanAmount)</td>
+                                            <td>@item.PhoneNumber</td>
+                                            <td>10%</td>
+                                            <td>Tenor</td>
+                                            <td>@String.Format("{0:dd-MMM-yyyy}", @item.CreatedDate)</td>
+                                            <td>@String.Format("{0:dd-MMM-yyyy}", @item.MaturityDate) (@item.LoanSpread)</td>
+                                            <td>@String.Format("{0:dd-MMM-yyyy}", @item.NextRepayMonth)</td>
+                                            <td>@String.Format("{0:#,##0}", @item.BalanceRecieved)</td>
+                                            <td>@String.Format("{0:#,##0}", @item.BalanceRemaining)</td>
+                                            <td>@String.Format("{0:dd-MMM-yyyy}", @item.MonthYear)</td>
+                                            <td>@item.Repaid</td>
+                                        </tr>
+                                        }
+                                    </tbody>
+                                </table>
+
+
+
+
+                                @*<table id="example" class="table table-bordered table-hover display nowrap margin-top-10 w-p100">
+                                        <thead>
+                                            <tr>
+                                                <th>Take&nbsp;Action</th>
+                                                <th>LoanApp.&nbsp;Number</th>
+                                                <th>Customer&nbsp;ID</th>
+                                                <th>Loan&nbsp;Amount</th>
+                                                <th>Balance&nbsp;Recieved</th>
+                                                <th>Balance&nbsp;Remaining</th>
+                                                <th>Loan&nbsp;Status</th>
+                                                <th>Month&nbsp;Applied</th>
+                                                <th>Next&nbsp;Repay</th>
+                                                <th>Last&nbsp;Action&nbsp;By</th>
+                                                <th>Last&nbsp;Action&nbsp;date</th>
+                                                <th>Fully&nbsp;Repaid?</th>
+                                                <th>Can&nbsp;Apply&nbsp;More?</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            @foreach (var item in Model.LoanApplicationItems)
+                                            {
+                                            <tr>
+                                                <td><a data-id="@item.LoanApplicationNumber" href="javascript:;" class="take-action btn btn-sm btn-purple" data-toggle="modal" data-target="#myModal">Take&nbsp;Action</a></td>
+                                                <td>@item.LoanApplicationNumber</td>
+                                                <td>@item.CustomerID</td>
+                                                <td>@String.Format("{0:#,##0}", @item.LoanAmount) </td>
+                                                <td>@String.Format("{0:#,##0}", @item.BalanceRecieved)</td>
+                                                <td>@String.Format("{0:#,##0}", @item.BalanceRemaining)</td>
+                                                <td>@item.LoanStatus</td>
+                                                <td>@String.Format("{0:dd-MMM-yyyy}", @item.MonthYear)</td>
+                                                <td>@String.Format("{0:dd-MMM-yyyy}", @item.NextRepayMonth)</td>
+                                                <td>@item.ApprovedBy</td>
+                                                <td>@String.Format("{0:dd-MMM-yyyy}", @item.ApprovedDate)</td>
+                                                <td>@item.Repaid</td>
+                                                <td>@item.AppStatus</td>
+                                            </tr>
+                                            }
+                                        </tbody>
+                                    </table>*@
+                            }
+
+
+                            @if (Web.Application.LoggedInUser.UserCategory == Web.Codes.Constants.UserCategory.USER)
+                            {
+                                <table id="example" class="table table-bordered table-hover display nowrap margin-top-10 w-p100">
+                                    <thead>
+                                        <tr>
+
+                                            <th>LoanApp.&nbsp;Number</th>
+                                            <th>Customer&nbsp;ID</th>
+                                            <th>Loan&nbsp;Amount</th>
+                                            <th>Balance&nbsp;Recieved</th>
+                                            <th>Balance&nbsp;Remaining</th>
+                                            <th>Loan&nbsp;Status</th>
+                                            <th>Month&nbsp;Applied</th>
+                                            <th>Next&nbsp;Repay</th>
+                                            <th>Last&nbsp;Action&nbsp;By</th>
+                                            <th>Last&nbsp;Action&nbsp;date</th>
+                                            <th>Fully&nbsp;Repaid?</th>
+                                            <th>Can&nbsp;Apply&nbsp;More?</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        @foreach (var item in Model.LoanApplicationItems)
+                                        {
+                                            <tr>
+                                                <td>@item.LoanApplicationNumber</td>
+                                                <td>@item.CustomerID</td>
+                                                <td>@String.Format("{0:#,##0}", @item.LoanAmount) </td>
+                                                <td>@String.Format("{0:#,##0}", @item.BalanceRecieved)</td>
+                                                <td>@String.Format("{0:#,##0}", @item.BalanceRemaining)</td>
+                                                <td>@item.LoanStatus</td>
+                                                <td>@String.Format("{0:dd-MMM-yyyy}", @item.MonthYear)</td>
+                                                <td>@String.Format("{0:dd-MMM-yyyy}", @item.NextRepayMonth)</td>
+                                                <td>@item.ApprovedBy</td>
+                                                <td>@String.Format("{0:dd-MMM-yyyy}", @item.ApprovedDate)</td>
+                                                <td>@item.Repaid</td>
+                                                <td>@item.AppStatus</td>
+                                            </tr>
+                                        }
+                                    </tbody>
+                                </table>
+                            }
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <div class="modal fade text-left" id="myModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel17"
+         aria-hidden="true">
+        <div class="modal-dialog modal-lg" role="document">
+            <div class="modal-content">               
+                <div class="modal-header">
+                    <h4 class="modal-title" id="modal-header-text">Repay a Loan</h4>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <input type="hidden" id="HdnID" value="0" />
+                    <input type="hidden" id="hdnUserID" value="" />
+                    <input type="hidden" id="hdnCustomerName" value="" />
+                    <input id="hdnBalanceRemaining" type="hidden" />
+                    <input id="hdnLoanAmount" type="hidden" />
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label for="BusinessName">Customer Name & ID</label>
+                                <span class="form-control" id="UserID" readonly></span>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label for="BusinessName">Loan Application Number</label>
+                                <span class="form-control" id="LoanApplicationNumber" readonly></span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label class="mr-25">Balance paid on this Loan</label>
+                                <input class="form-control" id="BalanceRecieved" type="text" readonly="readonly">
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label class="mr-25">Balance remaining on this Loan</label>
+                                <input class="form-control" id="BalanceRemaining" type="text" readonly="readonly">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label class="mr-25">Loan was applied for in</label>
+                                <input class="form-control" id="LoanApplied" type="text" readonly="readonly">
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label class="mr-25">This Repayment is expected to be for</label>
+                                <input class="form-control" id="LoanNextPayment" type="text" readonly="readonly">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label class="mr-25">Re-Payment for(Select Month)</label>
+                                <select id="RepaymentMonth" required="required" class="form-control">
+                                    <option value="">Please Select month</option>
+                                    <option value="1">January</option>
+                                    <option value="2">Febuary</option>
+                                    <option value="3">March</option>
+                                    <option value="4">April</option>
+                                    <option value="5">May</option>
+                                    <option value="6">June</option>
+                                    <option value="7">July</option>
+                                    <option value="8">August</option>
+                                    <option value="9">September</option>
+                                    <option value="10">October</option>
+                                    <option value="11">November</option>
+                                    <option value="12">December</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label class="mr-25">Re-Payment for(Select Year)</label>
+                                <select id="RepaymentYear" required="required" class="form-control">
+                                    <option value="">Please Select Year</option>
+                                    <option value="2020">2020</option>
+                                    <option value="2021">2021</option>
+                                    <option value="2022">2022</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <div class="row">
+                            <div class="col-12">
+                                <label class="mr-25">Enter Amount to Repay</label>
+                                <div class="input-group">
+                                    <span class="input-group-addon"><i class="font-size-16" title="NGN">₦</i></span>
+                                    <input class="form-control" id="AmountPaid" type="number" required="required">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn grey btn-outline-secondary" data-dismiss="modal">Close</button>
+                    <button type="submit" class="btn btn-outline-primary">Save changes</button>
+                </div>
+            </div>
+        </div>
+    </div>
+}
+
+<script src="~/assets/vendor_components/jquery/dist/jquery.js"></script>
+<script type="text/javascript">
+
+   
+
+
+    $(document).ready(function () {
+        //var elements = document.getElementsByClassName('row-fully-paid');
+
+        //for (var i = 0; i < elements.length; i++) {
+        //    var value = elements[i].innerText || elements[i].textContent;
+
+        //    if (value === 'No') {
+        //        elements[i].style.backgroundColor = '#FF0000';
+        //    } else if (value === 'Yes') {
+        //        elements[i].style.backgroundColor = '#00FF00';
+        //    }
+        //}
+
+        const formatter = new Intl.NumberFormat('en-US', {
+            style: 'currency',
+            currency: 'NGN',
+            minimumFractionDigits: 2
+        })
+
+        $('#example').find('.take-action').each(function () {
+            $(this).click(function (e) {
+                e.preventDefault();
+                var _id = $(this).data('id');
+                $.ajax({
+                    type: "GET",
+                    url: "/api/loan/fetchLoanDet?Id=" + _id,
+                    contentType: "application/json; charset=utf-8",
+                    async: true,
+                    success: function (response) {
+                        if (response.UserID !== null && response.UserID !== '') {
+                            $('#UserID').text(response.DisplayName + ' (' + (response.UserID) + ')');
+                            $("#hdnUserID").val(response.UserID);
+                            $("#hdnCustomerName").val(response.DisplayName);
+                            $('#LoanApplicationNumber').text(response.LoanApplicationNumber);
+                            var LoanAmount = formatter.format(response.LoanAmount);
+                            $('#LoanAmount').text(LoanAmount);
+                            var BalanceRemaining = formatter.format(response.BalanceRemaining);
+                            $('#LoanBalance').text(BalanceRemaining);
+                            $('#AppStatus').prop('checked', response.AppStatus);
+                            $('#Comment').text(response.Comment);
+                            var LoanBal = formatter.format(response.BalanceRecieved);
+                            $("#BalanceRecieved").val(LoanBal);
+                            var LoanBalRem = formatter.format(response.BalanceRemaining);
+                            $("#BalanceRemaining").val(LoanBalRem);
+                            $("#LoanRepaid").val(response.AppStatus);
+                            $("#LoanStatus").val(response.LoanStatus);
+                            $("#LastComment").val(response.Comment);
+                            $("#hdnBalanceRemaining").val(response.BalanceRemaining);
+                            $("#LoanApplied").val(response.MonthYear);
+                            $("#LoanNextPayment").val(response.LoanNextPayment);
+                            $("#hdnLoanAmount").val(response.LoanAmount);
+                        }
+                        else {
+                            swal.fire(
+                                "Error Occurred!",
+                                resp.ResponseMsg,
+                                "error"
+                            );
+                        }
+                    },
+                    error: function (XMLHttpRequest, textStatus, errorThrown) {
+                    }
+                }).done(function () {
+
+                });
+            });
+        });
+
+
+        $("#formLoanManager").submit(function (e) {
+            e.preventDefault();
+            var request = {
+                'BalanceRemaining': $('#hdnBalanceRemaining').val(),
+                'LoanApplicationNumber': $("#LoanApplicationNumber").text(),
+                'CustomerEmail': $('#CustomerEmail').val(),
+                'AmountPaid': $('#AmountPaid').val(),
+                'LoanStatus': $('#LoanStatus').val(),
+                'Month': $('#RepaymentMonth option:selected').val(),
+                'Year': $('#RepaymentYear option:selected').val(),
+                'LoanAmount': $('#hdnLoanAmount').val(),
+                'UserID': $('#hdnUserID').val(),
+                'CustomerName': $('#hdnCustomerName').val(),
+                
+            };
+            var _data = JSON.stringify(request);
+            Swal.fire({
+                customClass: {
+                    container: 'swal2-container'
+                },
+                title: 'Submit Form?',
+                text: 'You want to submit this form',
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonText: 'Yes, Submit!',
+                cancelButtonText: 'No, dont'
+            }).then((result) => {
+                if (result.value) {
+                    $.ajax({
+                        type: "POST",
+                        url: "/api/loan/NewRepayLoan",
+                        contentType: "application/json; charset=utf-8",
+                        data: _data,
+                        async: true,
+                        cache: false,
+                        success: function (resp) {
+                            if (resp.ResponseCode !== null && resp.ResponseCode === '00') {
+                                swal.fire(
+                                    "Success!",
+                                    resp.ResponseMsg,
+                                    "success"
+                                ).then(function () {
+                                    window.location.replace("../../LoanManager/RepaymentHistory/");
+                                });
+                            }
+                            if (resp.ResponseCode !== null && resp.ResponseCode === '96') {
+                                swal.fire(
+                                    "Warning!",
+                                    resp.ResponseMsg,
+                                    "error"
+                                );
+                            }
+                        },
+                        failure: function (resp) {
+                            swal.fire(
+                                "Internal Error",
+                                "Oops, Error Occurred.",
+                                "error"
+                            );
+                        }
+                    });
+
+                } else if (result.dismiss === Swal.DismissReason.cancel) {
+                    Swal.fire(
+                        'Cancelled',
+                        'You have cancelled your request',
+                        'error'
+                    )
+                }
+            })
+        });
+    });
+</script>

@@ -1,0 +1,204 @@
+﻿@model  Web.Models.MailModel
+@{
+    ViewBag.Title = "Mail Manager";
+}
+
+<style type="text/css">
+    .modal-backdrop {
+        z-index: -1;
+    }
+</style>
+@using (Html.BeginForm("Index", "Emaillog", FormMethod.Post, new { id = "formEmaillog" }))
+{
+    <section class="content">
+        <div class="row">
+            <div class="col-12">
+                <div class="box box-solid bg-dark">
+                    <div class="box-header with-border">
+                        <h3 class="box-title">Email Manager</h3>
+                        <h6 class="box-subtitle">Manage your emails here</h6>
+                    </div>
+                    <div class="box-body">
+                        <div class="table-responsive">
+                            <table id="example" class="table table-bordered table-hover display nowrap margin-top-10 w-p100">
+                                <thead>
+                                    <tr>
+                                        <th>Mail&nbsp;To</th>
+                                        <th>Subject</th>
+                                        <th>Created&nbsp;Date</th>
+                                        <th>Sent</th>
+                                        <th>Sent&nbsp;Date</th>
+                                        <th class="no-sort" data-priority="0"></th>
+                                        <th class="no-sort" data-priority="1"></th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @foreach (var item in Model.MailItems)
+                                    {
+                                        <tr>
+                                            <td>@item.To</td>
+                                            <td>@item.Subject</td>
+                                            <td>@String.Format("{0:dd-MMM-yyyy hh:mm}", @item.CreatedDate)</td>
+                                            <td>@item.Sent</td>
+                                            <td>@String.Format("{0:dd-MMM-yyyy hh:mm}", @item.SentDate)</td>
+                                            <td>
+                                                <a href="javascript:;" data-id="@item.Id" class="btn btn-sm btn-info view-mail" data-toggle="modal" data-target="#modaldemo2"><i class="fa fa-list"></i><span>&ensp;View&nbsp;Mail</span></a>
+                                            </td>
+                                            <td>
+                                                <a href="javascript:;" data-id="@item.Id" class="btn btn-sm btn-info resend-email"><i class="fa fa-reply"></i><span>&ensp;Resend&nbsp;Email</span></a>
+                                            </td>
+                                        </tr>
+                                    }
+                                </tbody>
+                                <tfoot>
+                                    <tr>
+                                        <th>Mail&nbsp;To</th>
+                                        <th>Subject</th>
+                                        <th>Created&nbsp;Date</th>
+                                        <th>Sent</th>
+                                        <th>Sent&nbsp;Date</th>
+                                        <th class="no-sort" data-priority="0"></th>
+                                        <th class="no-sort" data-priority="1"></th>
+                                    </tr>
+                                </tfoot>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <div class="modal fade text-left" id="modaldemo2" tabindex="-1" role="dialog" aria-labelledby="myModalLabel17"
+         aria-hidden="true">
+        <div class="modal-dialog modal-lg" role="document">
+            <div class="modal-content">
+                <input type="hidden" id="Mode" value="" />
+                <div class="modal-header">
+                    <h4 class="modal-title" id="modal-header-text">Mail Body</h4>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <div class="row">
+                        <div class="col-md-12">
+                            <div class="form-group">
+                                <div id="mail-body" style="width:100%"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn grey btn-outline-secondary" data-dismiss="modal">Close</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+}
+
+<script src="~/assets/vendor_components/jquery/dist/jquery.js"></script>
+<script type="text/javascript">
+    $(document).ready(function () {
+        //$('#dtable').DataTable();
+        $('#mail-body').html("");
+
+        $('#formEmaillog').find('.view-mail').each(function () {
+            $(this).click(function (e) {
+                e.preventDefault();
+                var _id = $(this).data('id');
+                //alert(_id);
+                $.ajax({
+                    type: "GET",
+                    url: "/api/gen/fetchEmail?Id=" + _id,
+                    dataType: "json",
+                    async: true,
+                    success: function (response) {
+                        if (response.Body !== null && response.Body !== '') {
+                            $('#mail-body').html(response.Body);
+                            $('#UserDisplayname').html(response.DisplayName);
+                            $('#modaldemo2').modal({
+                                'backdrop': 'static',
+                                "keyboard": false,
+                                "show": true
+                            });
+                        }
+                        else {
+                            var msg = 'Error Occurred.<br/>';
+                            msg += response.ResponseMsg;
+                            alert(msg);
+                        }
+                    },
+                    error: function (XMLHttpRequest, textStatus, errorThrown) {
+                        errorHandler(errorThrown);
+                        //hideWait();
+                    }
+                });
+            });
+        });
+
+        $('#formEmaillog').find('.resend-email').each(function () {
+            $(this).click(function (e) {
+                e.preventDefault();
+                var _id = $(this).data('id');
+                //var _id = $('.resend').val();
+                //alert(_id);
+                Swal.fire({
+                    title: 'Are you sure?',
+                    text: 'You want to resend email?',
+                    //icon: 'warning',
+                    showCancelButton: true,
+                    confirmButtonText: 'Yes, Resend!',
+                    cancelButtonText: 'No, dont'
+                }).then((result) => {
+                    if (result.value) {
+                        $.ajax({
+                            type: "GET",
+                            url: "/api/gen/ResendMail?Id=" + _id,
+                            contentType: "application/json; charset=utf-8",
+                            //data: _data,
+                            async: true,
+                            cache: false,
+                            success: function (resp) {
+                                if (resp.ResponseCode !== null && resp.ResponseCode === '00') {
+                                    alert();
+                                    swal.fire(
+                                        "Success!",
+                                        resp.ResponseMsg,
+                                        "success"
+                                    ).then(function () {
+                                        window.location.replace("../../Emaillog/");
+                                    });
+                                }
+                                if (resp.ResponseCode !== null && resp.ResponseCode === '96') {
+                                    swal.fire(
+                                        "Warning!",
+                                        resp.ResponseMsg,
+                                        "error"
+                                    );
+                                }
+                            },
+                            failure: function (resp) {
+                                swal.fire(
+                                    "Internal Error",
+                                    "Oops, Error Occurred.",
+                                    "error"
+                                );
+                            }
+                        });
+                    } else if (result.dismiss === Swal.DismissReason.cancel) {
+                        Swal.fire(
+                            'Cancelled',
+                            'You have cancelled your request',
+                            'error'
+                        )
+                    }
+                })
+            });
+        });
+
+    });
+
+
+</script>
