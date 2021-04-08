@@ -1,0 +1,278 @@
+﻿@model  Web.Models.UserModel
+@{
+    ViewBag.Title = "User Profile";
+}
+@section breadcrumb {
+    <li class="breadcrumb-item active">Manage Profile</li>
+}
+@section head {
+    <style type="text/css">
+        .ddlproperty {
+            font-size: 22px;
+            font-family: 'Lucida Sans', 'Lucida Sans Regular', 'Lucida Grande', 'Lucida Sans Unicode', Geneva, Verdana, sans-serif;
+            text-align: center;
+        }
+    </style>
+}
+
+<div class="row">
+    <div class="col-xl-4 col-lg-5">
+        <form id="uploadForm">
+            <!-- Profile Image -->
+            <div class="box bg-warning bg-deathstar-dark">
+                <div class="box-body box-profile">
+                    <img src="" style="overflow: hidden; position: relative; width:220px; height:220px;" alt="User profile picture" class="rcorners3 profile-user-img rounded img-fluid mx-auto d-block img1" />
+
+                    <h2 class="profile-username text-center mb-0"></h2>
+                    <h4 class="text-center mt-0 Email"><i class="fa fa-envelope-o mr-10"></i></h4>
+                    <div><br /><br /><br /></div>
+                    <div class="row social-states">
+                        <small style="color:#ffffff">Please Select an Image : <i class="fa fa-arrow-down mr-10"></i></small><br /><br />
+                        <input type="file" id="fileUpload" class="form-control" required="required" />
+                    </div>
+                    <br /><br />
+                    <div style="text-align:center">
+                        <button type="submit" class="btn btn-cyan" id="submit-upload">Change Image</button>
+                    </div><br /><br />
+                </div>
+            </div>
+        </form>
+    </div>
+
+    <div class="col-xl-8 col-lg-7">
+        <form id="personaldetails">
+            <div class="box box-solid bg-black">
+                <div class="box-header with-border">
+                    <h3 class="box-title">Personal Details</h3>
+                </div>
+                <!-- /.box-header -->
+                <div class="box-body">
+                    <div class="row">
+                        <div class="col-12">
+                            <div class="form-group row">
+                                <label class="col-sm-2 col-form-label">Full Name</label>
+                                <div class="col-sm-10">
+                                    <input class="form-control" type="text" id="DisplayName" required="required">
+                                </div>
+                            </div>
+                            <div class="form-group row">
+                                <label class="col-sm-2 col-form-label">Email/UserID:</label>
+                                <div class="col-sm-10">
+                                    <input class="form-control" type="email" id="UserID" readonly="readonly">
+                                </div>
+                            </div>
+                            <div class="form-group row">
+                                <label class="col-sm-2 col-form-label">Phone:</label>
+                                <div class="col-sm-10">
+                                    <input class="form-control" type="tel" id="Phone" readonly="readonly">
+                                </div>
+                            </div>
+                            <div class="form-group row">
+                                <label class="col-sm-2 col-form-label">Country</label>
+                                <div class="col-sm-10">
+                                    <input class="form-control" type="text" id="Country" required="required">
+                                </div>
+                            </div>
+                            <div class="form-group row">
+                                <label class="col-sm-2 col-form-label">Province</label>
+                                <div class="col-sm-10">
+                                    <input class="form-control" type="text" id="Province" required="required">
+                                </div>
+                            </div>
+                            <div class="form-group row">
+                                <label class="col-sm-2 col-form-label">Residential Address</label>
+                                <div class="col-sm-10">
+                                    <input class="form-control" type="text" id="ResidentialAddress">
+                                </div>
+                            </div>
+                            <div class="form-group row">
+                                <label class="col-sm-2 col-form-label"></label>
+                                <div class="col-sm-10">
+                                    <button type="submit" class="btn btn-warning">Update Personal Details</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </form>
+    </div>
+
+</div>
+
+
+
+
+
+@section bottom {
+    <script type="text/javascript">
+
+        function UserDt(e) {
+            e.preventDefault();
+            $.ajax({
+                type: "GET",
+                url: "/api/gen/UserImageURLAndOtherDetails",
+                async: true,
+                success: function (resp) {
+                    //alert(resp.ImageURL);
+                    if (resp.ImageURL != null) {
+                        var src1 = resp.ImageURL;
+                        $(".img1").prop("src", src1);
+                        $('#DisplayName').val(resp.DisplayName)
+                        $('.Email').text(resp.Email)
+                        $('#Phone').val(resp.Phone)
+                        $('#Country').val(resp.Country)
+                        $('#Province').val(resp.Province)
+                        $('#UserID').val(resp.UserID)
+                        $('#ResidentialAddress').val(resp.ResidentialAddress)
+                    }
+                    else {
+                        var src1 = "~/default-picture.png";
+                        $(".img1").prop("src", src1);
+                    }
+                },
+                error: function (XMLHttpRequest, textStatus, errorThrown) {
+                    errorHandler(errorThrown);
+                    hideWait();
+                }
+            })
+        }
+
+        $(document).ready(function () {
+
+            UserDt();
+            var _uploadForm = $('#uploadForm');
+            var _PDForm = $('#personaldetails');
+
+
+            _uploadForm.submit(function (e) {
+                msgbox = $('#msgbox', uploadForm);
+                RequestStarted($("#submit-upload"));
+                e.preventDefault();
+                if (confirm('Are you sure you want to upload this file?')) {
+                    try {
+                        var data = new FormData(uploadForm[0]);
+                        var files = $("#fileUpload").get(0).files;
+
+                        if (files.length > 0) {
+                            data.append("excelfile", files[0]);
+                        }
+                        $.ajax({
+                            type: "POST",
+                            url: "/api/account/upload",
+                            data: data,
+                            contentType: false,
+                            processData: false,
+                            async: true,
+                            success: function (resp) {
+                                if (resp.ResponseCode != null && resp.ResponseCode == '00') {
+                                    showAlert({
+                                        message: resp.ResponseMsg,
+                                        type: 'success',
+                                        callback: function () { location.reload(); }
+                                    });
+                                }
+                                else {
+                                    showAlert({
+                                        message: resp.ResponseMsg,
+                                        type: 'error',
+                                        callback: RequestEnded
+                                    });
+                                }
+                            },
+                            error: function (XMLHttpRequest, textStatus, errorThrown) {
+                                showAlert({
+                                    message: resp.ResponseMsg,
+                                    type: 'error',
+                                    callback: RequestEnded
+                                });
+                            }
+                        });
+                    }
+                    catch (e) {
+                        errorHandler('Error Occurred');
+                        RequestEnded();
+                        console.log(e);
+                    }
+                    return false;
+                }
+            });
+
+            _PDForm.submit(function (e) {
+                msgbox = $('#msgbox', _PDForm);
+                e.preventDefault();
+                bootbox.confirm({
+                    title: "Confirmation",
+                    message: "Are you sure you want to submit the request?",
+                    buttons: {
+                        cancel: {
+                            label: '<i class="fa fa-times"></i> Cancel'
+                        },
+                        confirm: {
+                            className: 'btn btn-warning',
+                            label: '<i class="fa fa-check"></i> Confirm'
+                        }
+                    },
+                    callback: function (result) {
+                        if (result) {
+                            RequestStarted($("#SaveButton"));
+                            try {
+                                var request = {
+                                    DisplayName: $('#DisplayName').val(),
+                                    Country: $('#Country').val(),
+                                    Province: $('#Province').val(),
+                                    ResidentialAddress: $('#ResidentialAddress').val(),
+                                    UserID: $('#UserID').val(),
+                                };
+                                var _data = JSON.stringify(request);
+                                //console.log(_data);
+                                $.ajax({
+                                    type: "POST",
+                                    url: "/api/account/UpdatePersonalDetails",
+                                    data: _data,
+                                    contentType: "application/json; charset=utf-8",
+                                    async: true,
+                                    success: function (response) {
+                                        if (response.ResponseCode != null && response.ResponseCode == '00') {
+                                            showAlert({
+                                                message: response.ResponseMsg,
+                                                type: 'success',
+                                                callback: function () { location.reload(); }
+                                            });
+                                        }
+                                        else {
+                                            showAlert({
+                                                message: response.ResponseMsg,
+                                                type: 'error',
+                                                callback: RequestEnded
+                                            });
+                                        }
+                                    },
+                                    error: function (XMLHttpRequest, textStatus, errorThrown) {
+                                        showAlert({
+                                            message: response.ResponseMsg,
+                                            type: 'error',
+                                            callback: RequestEnded
+                                        });
+                                    }
+                                });
+                            }
+                            catch (e) {
+                                showAlert({ message: 'Error occurred', type: 'error' });
+                                RequestEnded();
+                            }
+                        }
+                    }
+                });
+            });
+
+        });
+    </script>
+
+    <style type="text/css">
+
+        .rcorners3 {
+            border-radius: 25px;
+        }
+    </style>
+}

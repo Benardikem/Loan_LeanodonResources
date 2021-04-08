@@ -30,8 +30,10 @@ namespace Web.APIControllers
                 (month);
         }
 
-        //create
-        [HttpPost, Route("api/loan/create")]
+        static StringBuilder text = new StringBuilder();
+
+
+        [HttpPost, Route("api/loan/custcreate")]
         public HttpResponseMessage Create(LoanApplicationItem request)
         {
             ActionResponse resp = new ActionResponse { ResponseCode = "96", ResponseMsg = "System Malfunction" };
@@ -39,187 +41,409 @@ namespace Web.APIControllers
             {
                 try
                 {
-                    CheckAppStatus _ChckAppStatus;
-                    LoanApplication _item;
-                    Invoice _inv;
-                    LastLoanMonthRepaid _MonthRepay;
-                    int intNextMontToPay = request.Month + 1;
-                    string NextMontToPay = getFullName(intNextMontToPay);
-                    string FullMonthName = getFullName(request.Month);
-
-                    DateTime dt = Date.GetDateTimeByTimeZone(DateTime.Now);
-                    var Matdate = dt.AddMonths(Convert.ToInt32(request.MatDate));
-
-                    //check if user can apply for more loans
-                    _ChckAppStatus = _db.CheckAppStats.FirstOrDefault(m => m.UserID == LoggedInUser.UserId && m.Status == false);
-                    if (_ChckAppStatus == null)
+                    if (!string.IsNullOrEmpty(LoggedInUser.UserId))
                     {
-                        var APPno = "LRL20" + Alphanumeric.Generate(6);
-                        //var InvoiceHtmlURL = $"{InsertInvoiceHtmltoLocalFolder.HtmlFilePath_Local}{APPno}.html";
-                        _item = _db.LoanApplications.Create();
-                        _item.UserID = request.UserID;
-                        _item.LoanAmount = request.LoanAmount;
-                        _item.MaturityDate = Matdate;
-                        _item.LoanSpread = request.LoanSpread;
-                        int LoanAmount = Convert.ToInt32(request.LoanAmount);
-                        int TenPercentVal = 10 * LoanAmount / 100;
-                        _item.BalanceRemaining = TenPercentVal + LoanAmount;
-                        _item.MonthYear = FullMonthName + ' ' + request.Year;
-                        _item.LoanStatus = ApprovalStatus.PENDING;
-                        _item.InvoiceURL = $"{APPno}.html";
-                        _item.Repaid = false;
-                        _item.LoanApplicationNumber = APPno;
-                        _item.CreatedBy = LoggedInUser.UserName;
-                        _item.CreatedDate = Date.GetDateTimeByTimeZone(DateTime.Now);
-                        _db.LoanApplications.Add(_item);
-                        _db.SaveChanges();
 
 
+                        CheckAppStatus _ChckAppStatus;
+                        LoanApplication _item;
+                        Invoice _inv;
+                        LastLoanMonthRepaid _MonthRepay;
+                        int intNextMontToPay = request.Month + 1;
+                        string NextMontToPay = getFullName(intNextMontToPay);
+                        string FullMonthName = getFullName(request.Month);
 
+                        DateTime dt = Date.GetDateTimeByTimeZone(DateTime.Now);
+                        var Matdate = dt.AddMonths(Convert.ToInt32(request.MatDate));
 
-                        //CREATING INVOICE ENTRY
-                        var total = _db.Invoices.Count(x => x.CustomerName != null);
-                        var invnumber = "";
-                        if (total < 1000)
-                        {
-                            invnumber = "00000" + total;
-                        }
-                        if (total < 10000)
-                        {
-                            invnumber = "0000" + total;
-                        }
-                        _inv = _db.Invoices.Create();
-                        _inv.InvoiceURL = $"{APPno}.html";
-                        _inv.InvoiceNumber = invnumber;
-                        _inv.CustomerName = request.CustomerName;
-                        _inv.CustomerID = request.UserID;
-                        _inv.CreatedBy = LoggedInUser.DisplayName;
-                        _inv.InvoiceDate = Date.GetDateTimeByTimeZone(DateTime.Now);
-                        _db.Invoices.Add(_inv);
-                        _db.SaveChanges();
-
-
-                        //CREATING EMAIL CONTENT
-                        string html = "";
-                        var client = new WebClient();
-
-                        html = client.DownloadString(EmailDownloadString.LocalFilePath);
-                        StringBuilder sb = new StringBuilder(html);
-                        string textBody =
-                        sb
-                          .Replace("Subject", LoanLogStatus.ApplyLoan)
-                           .Replace("RecieversName", request.CustomerName)
-                            .Replace("Enter your message here", $"Hi {request.CustomerName}, <br><br>We wish to inform you that your Loan Application was successful.<br><br>" +
-                            $" <b>Loan Application Number :</b> {APPno} <br><br>Regards.<br><br><br><br><br>,We also wish to use this medium to inform you that you can make" +
-                            $"  repayments of your loan at your convenience any time through any of our payment channels.<br><br><br> As we also urge you to login to your customer backoffice To preview the invoice for this transaction</a>")
-                          .ToString();
-
-                        var Emailbody = textBody;
-
-
-                        //CREATING INVOICE CONTENT
-                        string html1 = "";
-                        html1 = client.DownloadString(InvoiceDownloadString.LocalFilePath);
-                        var getcustomeraddress = _db.Users.FirstOrDefault(f => f.UserID == request.UserID).R_Address;
-                        var getcustomerphone = _db.Users.FirstOrDefault(f => f.UserID == request.UserID).Phone;
-                        var getcustomeremail = _db.Users.FirstOrDefault(f => f.UserID == request.UserID).Email;
-                        var formattedLoanAmt = @String.Format("{0:#,##0}", request.LoanAmount);
-                        var formattedTenPercentVal = @String.Format("{0:#,##0}", TenPercentVal);
-                        var formattednextpaymentAmount = @String.Format("{0:#,##0}", TenPercentVal + LoanAmount);
-
-                        StringBuilder sb1 = new StringBuilder(html1);
-                        string textBody1 =
-                        sb1
-                          .Replace("invoicenumber", invnumber)
-                          .Replace("DateNow", @DateTime.Now.ToString("MM/dd/yyyy"))
-                          .Replace("customername", request.CustomerName)
-                          .Replace("InvoiceFor", $"Invoice generated for {request.CustomerName} on {@DateTime.Now.ToString("MM/dd/yyyy")}")
-                          .Replace("customeraddress", getcustomeraddress)
-                          .Replace("customerphone", getcustomerphone)
-                          .Replace("customeremail", getcustomeremail)
-                          .Replace("#ApplicationNumber", APPno)
-                          .Replace("nextpaymentdue", $"{NextMontToPay} {request.Year}")
-                          .Replace("customerID", request.UserID)
-                          .Replace("loanamount", $"{formattedLoanAmt}")
-                          .Replace("InterestonLoan", $"{formattedTenPercentVal}")
-                          .Replace("nextpaymentAmount", $"{formattednextpaymentAmount}")
-                          .ToString();
-
-                        var Invoicebody = textBody1;
-                        //inserting invoice to folder
-                        System.IO.File.WriteAllText(InsertInvoiceHtmltoLocalFolder.HtmlFilePath_Local + APPno + ".html", Invoicebody);
-
-                        //Update Activity
-                        ActivityLog _log = _db.ActivityLogs.Create();
-                        _log.Title = LoanTitles.LoanApply;
-                        _log.UserName = LoggedInUser.UserName;
-                        _log.ActivityType = LoanLogStatus.ApplyLoan;
-                        _log.Details = $"{LoanLogDetails.ApplyLoan} for {request.CustomerName} ({request.CustomerID}) with loan Application Number : {APPno}";
-                        _log.ActivityDate = Date.GetDateTimeByTimeZone(DateTime.Now);
-                        _db.ActivityLogs.Add(_log);
-                        _db.SaveChanges();
-
-                        //UPDATING CHECK APP STATUS TABLE
-                        //CHECK IF RECORD EXISTS
-                        _ChckAppStatus = _db.CheckAppStats.SingleOrDefault(a => a.UserID == request.UserID);
+                        //check if user can apply for more loans
+                        _ChckAppStatus = _db.CheckAppStats.FirstOrDefault(m => m.UserID == LoggedInUser.UserId && m.Status == false);
                         if (_ChckAppStatus == null)
                         {
-                            //INSERT/CREATE
-                            _ChckAppStatus = _db.CheckAppStats.Create();
-                            _ChckAppStatus.UserID = request.UserID;
-                            _ChckAppStatus.Status = false;
-                            _db.CheckAppStats.Add(_ChckAppStatus);
+                            var APPno = "LRL20" + Alphanumeric.Generate(6);
+                            var InvoiceHtmlURL = $"{InsertInvoiceHtmltoLocalFolder.HtmlFilePath_Local}{APPno}.html";
+                            _item = _db.LoanApplications.Create();
+                            _item.UserID = LoggedInUser.UserId;
+                            _item.LoanAmount = request.LoanAmount;
+                            _item.MaturityDate = Matdate;
+                            _item.LoanSpread = request.LoanSpread;
+                            int LoanAmount = Convert.ToInt32(request.LoanAmount);
+                            int TenPercentVal = 10 * LoanAmount / 100;
+                            _item.BalanceRemaining = TenPercentVal + LoanAmount;
+                            _item.MonthYear = FullMonthName + ' ' + request.Year;
+                            _item.LoanStatus = ApprovalStatus.PENDING;
+                            _item.InvoiceURL = $"{APPno}.html";
+                            _item.Repaid = false;
+                            _item.LoanApplicationNumber = APPno;
+                            _item.CreatedBy = LoggedInUser.UserName;
+                            _item.CreatedDate = Date.GetDateTimeByTimeZone(DateTime.Now);
+                            _db.LoanApplications.Add(_item);
                             _db.SaveChanges();
-                        }
-                        else
-                        {
-                            //UPDATE EXISTING RECORD
-                            _ChckAppStatus = _db.CheckAppStats.SingleOrDefault(a => a.UserID == request.UserID);
-                            _ChckAppStatus.Status = false;
-                            _db.SaveChanges();
-                        }
 
 
-                        //CREATE LOAN DUE DATE
-                        _MonthRepay = _db.LastLoanMonth.SingleOrDefault(a => a.LoanApplicationNumber == request.LoanApplicationNumber);
-                        if (_MonthRepay == null)
-                        {
-                            //INSERT/CREATE
-                            _MonthRepay = _db.LastLoanMonth.Create();
-                            _MonthRepay.UserID = request.UserID;
-                            _MonthRepay.LoanApplicationNumber = APPno;
-                            _MonthRepay.LastMonthPaidFor = NextMontToPay + ' ' + request.Year;
-                            _db.LastLoanMonth.Add(_MonthRepay);
-                            _db.SaveChanges();
-                        }
-                        else
-                        {
-                            //UPDATE EXISTING RECORD
-                            _MonthRepay = _db.LastLoanMonth.SingleOrDefault(a => a.LoanApplicationNumber == request.LoanApplicationNumber);
-                            _MonthRepay.LastMonthPaidFor = NextMontToPay + ' ' + request.Year;
-                            _db.SaveChanges();
-                        }
 
-                        try
-                        {
-                            EmailItem _mail = new EmailItem
+
+                            //CREATING INVOICE ENTRY
+                            var total = _db.Invoices.Count(x => x.CustomerName != null);
+                            var invnumber = "";
+                            if (total < 1000)
                             {
-                                Title = LoanLogStatus.ApplyLoan,
-                                Body = Emailbody,
-                                To = new List<string> { getcustomeremail },
-                                //Attachments = new List<string> { sFileName.ToString() },
-                            };
-                            Messaging.LogMail(_mail);
-                        }
-                        catch { }
+                                invnumber = "00000" + total;
+                            }
+                            if (total < 10000)
+                            {
+                                invnumber = "0000" + total;
+                            }
+                            _inv = _db.Invoices.Create();
+                            _inv.InvoiceURL = $"{APPno}.html";
+                            _inv.InvoiceNumber = invnumber;
+                            _inv.CustomerName = request.CustomerName;
+                            _inv.CustomerID = request.UserID;
+                            _inv.CreatedBy = LoggedInUser.DisplayName;
+                            _inv.InvoiceDate = Date.GetDateTimeByTimeZone(DateTime.Now);
+                            _db.Invoices.Add(_inv);
+                            _db.SaveChanges();
 
-                        //_db.SaveChanges();
-                        resp.ResponseCode = "00";
-                        resp.ResponseMsg = $"Loan Application created, an Invoice has been sent to {getcustomeremail}";
+
+                            //CREATING EMAIL CONTENT
+                            string html = "";
+                            var client = new WebClient();
+
+                            html = client.DownloadString(EmailDownloadString.OnlineFilePath);
+                            StringBuilder sb = new StringBuilder(html);
+                            string textBody =
+                            sb
+                              .Replace("Subject", LoanLogStatus.ApplyLoan)
+                               .Replace("RecieversName", request.CustomerName)
+                                .Replace("Enter your message here", $"Hi {request.CustomerName}, <br><br>We wish to inform you that your Loan Application was successful.<br><br>" +
+                                $" <b>Loan Application Number :</b> {APPno} <br><br>Regards.<br><br><br><br><br>,We also wish to use this medium to inform you that you can make" +
+                                $"  repayments of your loan at your convenience any time through any of our payment channels.<br><br><br> As we also urge you to login to your customer backoffice To preview the invoice for this transaction</a>")
+                              .ToString();
+
+                            var Emailbody = textBody;
+
+
+                            //CREATING INVOICE CONTENT
+                            string html1 = "";
+                            html1 = client.DownloadString(InvoiceDownloadString.OnlineFilePath);
+                            var getcustomeraddress = _db.Users.FirstOrDefault(f => f.UserID == LoggedInUser.UserId).R_Address;
+                            var getcustomerphone = _db.Users.FirstOrDefault(f => f.UserID == LoggedInUser.UserId).Phone;
+                            var getcustomeremail = _db.Users.FirstOrDefault(f => f.UserID == LoggedInUser.UserId).Email;
+                            var formattedLoanAmt = @String.Format("{0:#,##0}", request.LoanAmount);
+                            var formattedTenPercentVal = @String.Format("{0:#,##0}", TenPercentVal);
+                            var formattednextpaymentAmount = @String.Format("{0:#,##0}", TenPercentVal + LoanAmount);
+
+                            StringBuilder sb1 = new StringBuilder(html1);
+                            string textBody1 =
+                            sb1
+                              .Replace("invoicenumber", invnumber)
+                              .Replace("DateNow", @DateTime.Now.ToString("MM/dd/yyyy"))
+                              .Replace("customername", request.CustomerName)
+                              .Replace("InvoiceFor", $"Invoice generated for {request.CustomerName} on {@DateTime.Now.ToString("MM/dd/yyyy")}")
+                              .Replace("customeraddress", getcustomeraddress)
+                              .Replace("customerphone", getcustomerphone)
+                              .Replace("customeremail", getcustomeremail)
+                              .Replace("#ApplicationNumber", APPno)
+                              .Replace("nextpaymentdue", $"{NextMontToPay} {request.Year}")
+                              .Replace("customerID", LoggedInUser.UserId)
+                              .Replace("loanamount", $"{formattedLoanAmt}")
+                              .Replace("InterestonLoan", $"{formattedTenPercentVal}")
+                              .Replace("nextpaymentAmount", $"{formattednextpaymentAmount}")
+                              .ToString();
+
+                            var Invoicebody = textBody1;
+                            //inserting invoice to folder
+
+                            //System.IO.File.WriteAllText(@"C:\Projects\Loan_LeanodonResources\Web\Invoices\" + APPno + ".html", Invoicebody);
+                            System.IO.File.WriteAllText(InsertInvoiceHtmltoLocalFolder.HtmlFilePath_Online + APPno + ".html", Invoicebody);
+
+                            //Update Activity
+                            ActivityLog _log = _db.ActivityLogs.Create();
+                            _log.Title = LoanTitles.LoanApply;
+                            _log.UserName = LoggedInUser.UserName;
+                            _log.ActivityType = LoanLogStatus.ApplyLoan;
+                            _log.Details = $"{LoanLogDetails.ApplyLoan} for {request.CustomerName} ({request.CustomerID}) with loan Application Number : {APPno}";
+                            _log.ActivityDate = Date.GetDateTimeByTimeZone(DateTime.Now);
+                            _db.ActivityLogs.Add(_log);
+                            _db.SaveChanges();
+
+                            //UPDATING CHECK APP STATUS TABLE
+                            //CHECK IF RECORD EXISTS
+                            _ChckAppStatus = _db.CheckAppStats.SingleOrDefault(a => a.UserID == LoggedInUser.UserId);
+                            if (_ChckAppStatus == null)
+                            {
+                                //INSERT/CREATE
+                                _ChckAppStatus = _db.CheckAppStats.Create();
+                                _ChckAppStatus.UserID = LoggedInUser.UserId;
+                                _ChckAppStatus.Status = false;
+                                _db.CheckAppStats.Add(_ChckAppStatus);
+                                _db.SaveChanges();
+                            }
+                            else
+                            {
+                                //UPDATE EXISTING RECORD
+                                _ChckAppStatus = _db.CheckAppStats.SingleOrDefault(a => a.UserID == LoggedInUser.UserId);
+                                _ChckAppStatus.Status = false;
+                                _db.SaveChanges();
+                            }
+
+
+                            //CREATE LOAN DUE DATE
+                            _MonthRepay = _db.LastLoanMonth.SingleOrDefault(a => a.LoanApplicationNumber == request.LoanApplicationNumber);
+                            if (_MonthRepay == null)
+                            {
+                                //INSERT/CREATE
+                                _MonthRepay = _db.LastLoanMonth.Create();
+                                _MonthRepay.UserID = LoggedInUser.UserId;
+                                _MonthRepay.LoanApplicationNumber = APPno;
+                                _MonthRepay.LastMonthPaidFor = NextMontToPay + ' ' + request.Year;
+                                _db.LastLoanMonth.Add(_MonthRepay);
+                                _db.SaveChanges();
+                            }
+                            else
+                            {
+                                //UPDATE EXISTING RECORD
+                                _MonthRepay = _db.LastLoanMonth.SingleOrDefault(a => a.LoanApplicationNumber == request.LoanApplicationNumber);
+                                _MonthRepay.LastMonthPaidFor = NextMontToPay + ' ' + request.Year;
+                                _db.SaveChanges();
+                            }
+
+                            try
+                            {
+                                EmailItem _mail = new EmailItem
+                                {
+                                    Title = LoanLogStatus.ApplyLoan,
+                                    Body = Emailbody,
+                                    To = new List<string> { getcustomeremail },
+                                    //Attachments = new List<string> { sFileName.ToString() },
+                                };
+                                Messaging.LogMail(_mail);
+                            }
+                            catch { }
+
+                            //_db.SaveChanges();
+                            resp.ResponseCode = "00";
+                            resp.ResponseMsg = $"Loan Application created, an Invoice has been sent to {getcustomeremail}";
+                        }
+                        else
+                        {
+                            resp.ResponseMsg = String.Format("Sorry you cannot apply for a loan at this time, contact the admin");
+                        }
                     }
                     else
                     {
-                        resp.ResponseMsg = String.Format("Sorry you cannot apply for a loan at this time, contact the admin");
+                        resp.ResponseMsg = String.Format("Unknown request, your session probably expired, kindly logout and login again");
+                    }
+                }
+                catch (System.Exception ex)
+                {
+                    resp.ResponseMsg = ex.Message;
+                }
+            }
+            return Request.CreateResponse(HttpStatusCode.OK, resp);
+        }
+
+
+
+
+
+        //create
+        [HttpPost, Route("api/loan/adcreate")]
+        public HttpResponseMessage AdCreate(LoanApplicationItem request)
+        {
+            ActionResponse resp = new ActionResponse { ResponseCode = "96", ResponseMsg = "System Malfunction" };
+            using (MyDbContext _db = new MyDbContext())
+            {
+                try
+                {
+                    if (!string.IsNullOrEmpty(request.UserID))
+                    {
+                        CheckAppStatus _ChckAppStatus;
+                        LoanApplication _item;
+                        Invoice _inv;
+                        LastLoanMonthRepaid _MonthRepay;
+                        int intNextMontToPay = request.Month + 1;
+                        string NextMontToPay = getFullName(intNextMontToPay);
+                        string FullMonthName = getFullName(request.Month);
+
+                        DateTime dt = Date.GetDateTimeByTimeZone(DateTime.Now);
+                        var Matdate = dt.AddMonths(Convert.ToInt32(request.MatDate));
+
+                        //check if user can apply for more loans
+                        _ChckAppStatus = _db.CheckAppStats.FirstOrDefault(m => m.UserID == request.UserID && m.Status == false);
+                        if (_ChckAppStatus == null)
+                        {
+                            var APPno = "LRL20" + Alphanumeric.Generate(6);
+                            //var InvoiceHtmlURL = $"{InsertInvoiceHtmltoLocalFolder.HtmlFilePath_Local}{APPno}.html";
+                            _item = _db.LoanApplications.Create();
+                            _item.UserID = request.UserID;
+                            _item.LoanAmount = request.LoanAmount;
+                            _item.MaturityDate = Matdate;
+                            _item.LoanSpread = request.LoanSpread;
+                            int LoanAmount = Convert.ToInt32(request.LoanAmount);
+                            int TenPercentVal = 10 * LoanAmount / 100;
+                            _item.BalanceRemaining = TenPercentVal + LoanAmount;
+                            _item.MonthYear = FullMonthName + ' ' + request.Year;
+                            _item.LoanStatus = ApprovalStatus.PENDING;
+                            _item.InvoiceURL = $"{APPno}.html";
+                            _item.Repaid = false;
+                            _item.LoanApplicationNumber = APPno;
+                            _item.CreatedBy = LoggedInUser.UserName;
+                            _item.CreatedDate = Date.GetDateTimeByTimeZone(DateTime.Now);
+                            _db.LoanApplications.Add(_item);
+                            _db.SaveChanges();
+
+
+
+
+                            //CREATING INVOICE ENTRY
+                            var total = _db.Invoices.Count(x => x.CustomerName != null);
+                            var invnumber = "";
+                            if (total < 1000)
+                            {
+                                invnumber = "00000" + total;
+                            }
+                            if (total < 10000)
+                            {
+                                invnumber = "0000" + total;
+                            }
+                            _inv = _db.Invoices.Create();
+                            _inv.InvoiceURL = $"{APPno}.html";
+                            _inv.InvoiceNumber = invnumber;
+                            _inv.CustomerName = request.CustomerName;
+                            _inv.CustomerID = request.UserID;
+                            _inv.CreatedBy = LoggedInUser.DisplayName;
+                            _inv.InvoiceDate = Date.GetDateTimeByTimeZone(DateTime.Now);
+                            _db.Invoices.Add(_inv);
+                            _db.SaveChanges();
+
+
+                            //CREATING EMAIL CONTENT
+                            string html = "";
+                            var client = new WebClient();
+
+                            html = client.DownloadString(EmailDownloadString.OnlineFilePath);
+                            StringBuilder sb = new StringBuilder(html);
+                            string textBody =
+                            sb
+                              .Replace("Subject", LoanLogStatus.ApplyLoan)
+                               .Replace("RecieversName", request.CustomerName)
+                                .Replace("Enter your message here", $"Hi {request.CustomerName}, <br><br>We wish to inform you that your Loan Application was successful.<br><br>" +
+                                $" <b>Loan Application Number :</b> {APPno} <br><br>Regards.<br><br><br><br><br>,We also wish to use this medium to inform you that you can make" +
+                                $"  repayments of your loan at your convenience any time through any of our payment channels.<br><br><br> As we also urge you to login to your customer backoffice To preview the invoice for this transaction</a>")
+                              .ToString();
+
+                            var Emailbody = textBody;
+
+
+                            //CREATING INVOICE CONTENT
+                            string html1 = "";
+                            html1 = client.DownloadString(InvoiceDownloadString.OnlineFilePath);
+                            var getcustomeraddress = _db.Users.FirstOrDefault(f => f.UserID == request.UserID).R_Address;
+                            var getcustomerphone = _db.Users.FirstOrDefault(f => f.UserID == request.UserID).Phone;
+                            var getcustomeremail = _db.Users.FirstOrDefault(f => f.UserID == request.UserID).Email;
+                            var formattedLoanAmt = @String.Format("{0:#,##0}", request.LoanAmount);
+                            var formattedTenPercentVal = @String.Format("{0:#,##0}", TenPercentVal);
+                            var formattednextpaymentAmount = @String.Format("{0:#,##0}", TenPercentVal + LoanAmount);
+
+                            StringBuilder sb1 = new StringBuilder(html1);
+                            string textBody1 =
+                            sb1
+                              .Replace("invoicenumber", invnumber)
+                              .Replace("DateNow", @DateTime.Now.ToString("MM/dd/yyyy"))
+                              .Replace("customername", request.CustomerName)
+                              .Replace("InvoiceFor", $"Invoice generated for {request.CustomerName} on {@DateTime.Now.ToString("MM/dd/yyyy")}")
+                              .Replace("customeraddress", getcustomeraddress)
+                              .Replace("customerphone", getcustomerphone)
+                              .Replace("customeremail", getcustomeremail)
+                              .Replace("#ApplicationNumber", APPno)
+                              .Replace("nextpaymentdue", $"{NextMontToPay} {request.Year}")
+                              .Replace("customerID", request.UserID)
+                              .Replace("loanamount", $"{formattedLoanAmt}")
+                              .Replace("InterestonLoan", $"{formattedTenPercentVal}")
+                              .Replace("nextpaymentAmount", $"{formattednextpaymentAmount}")
+                              .ToString();
+
+                            var Invoicebody = textBody1;
+                            //inserting invoice to folder
+                            System.IO.File.WriteAllText(InsertInvoiceHtmltoLocalFolder.HtmlFilePath_Online + APPno + ".html", Invoicebody);
+
+                            //Update Activity
+                            ActivityLog _log = _db.ActivityLogs.Create();
+                            _log.Title = LoanTitles.LoanApply;
+                            _log.UserName = LoggedInUser.UserName;
+                            _log.ActivityType = LoanLogStatus.ApplyLoan;
+                            _log.Details = $"{LoanLogDetails.ApplyLoan} for {request.CustomerName} ({request.CustomerID}) with loan Application Number : {APPno}";
+                            _log.ActivityDate = Date.GetDateTimeByTimeZone(DateTime.Now);
+                            _db.ActivityLogs.Add(_log);
+                            _db.SaveChanges();
+
+                            //UPDATING CHECK APP STATUS TABLE
+                            //CHECK IF RECORD EXISTS
+                            _ChckAppStatus = _db.CheckAppStats.SingleOrDefault(a => a.UserID == request.UserID);
+                            if (_ChckAppStatus == null)
+                            {
+                                //INSERT/CREATE
+                                _ChckAppStatus = _db.CheckAppStats.Create();
+                                _ChckAppStatus.UserID = request.UserID;
+                                _ChckAppStatus.Status = false;
+                                _db.CheckAppStats.Add(_ChckAppStatus);
+                                _db.SaveChanges();
+                            }
+                            else
+                            {
+                                //UPDATE EXISTING RECORD
+                                _ChckAppStatus = _db.CheckAppStats.SingleOrDefault(a => a.UserID == request.UserID);
+                                _ChckAppStatus.Status = false;
+                                _db.SaveChanges();
+                            }
+
+
+                            //CREATE LOAN DUE DATE
+                            _MonthRepay = _db.LastLoanMonth.SingleOrDefault(a => a.LoanApplicationNumber == request.LoanApplicationNumber);
+                            if (_MonthRepay == null)
+                            {
+                                //INSERT/CREATE
+                                _MonthRepay = _db.LastLoanMonth.Create();
+                                _MonthRepay.UserID = request.UserID;
+                                _MonthRepay.LoanApplicationNumber = APPno;
+                                _MonthRepay.LastMonthPaidFor = NextMontToPay + ' ' + request.Year;
+                                _db.LastLoanMonth.Add(_MonthRepay);
+                                _db.SaveChanges();
+                            }
+                            else
+                            {
+                                //UPDATE EXISTING RECORD
+                                _MonthRepay = _db.LastLoanMonth.SingleOrDefault(a => a.LoanApplicationNumber == request.LoanApplicationNumber);
+                                _MonthRepay.LastMonthPaidFor = NextMontToPay + ' ' + request.Year;
+                                _db.SaveChanges();
+                            }
+
+                            try
+                            {
+                                EmailItem _mail = new EmailItem
+                                {
+                                    Title = LoanLogStatus.ApplyLoan,
+                                    Body = Emailbody,
+                                    To = new List<string> { getcustomeremail },
+                                    //Attachments = new List<string> { sFileName.ToString() },
+                                };
+                                Messaging.LogMail(_mail);
+                            }
+                            catch { }
+
+                            //_db.SaveChanges();
+                            resp.ResponseCode = "00";
+                            resp.ResponseMsg = $"Loan Application created, an Invoice has been sent to {getcustomeremail}";
+                        }
+                        else
+                        {
+                            resp.ResponseMsg = String.Format("Sorry this user cannot apply for a new loan at this time, he or she has outstanding balance");
+                        }
+                    }
+                    else
+                    {
+                        resp.ResponseMsg = String.Format("Unknown request, USERID returned Null");
                     }
                 }
                 catch (System.Exception ex)
@@ -267,7 +491,7 @@ namespace Web.APIControllers
                         decimal? NewBalanceafterpayment = BalanceAfterPayment + TenPercentVal;
 
                         //UPDATE LOAN APPLICATION
-                        _item = _db.LoanApplications.FirstOrDefault(a => a.LoanApplicationNumber == request.LoanApplicationNumber);                       
+                        _item = _db.LoanApplications.FirstOrDefault(a => a.LoanApplicationNumber == request.LoanApplicationNumber);
                         _item.BalanceRecieved = (decimal)NewbalanceRecieved;
                         _item.BalanceRemaining = NewBalanceafterpayment;
                         if (BalanceAfterPayment < 0)
@@ -291,7 +515,7 @@ namespace Web.APIControllers
                         }
                         _inv = _db.Invoices.Create();
                         _inv.InvoiceURL = $"{request.LoanApplicationNumber}RL.html";
-                        _inv.InvoiceNumber = invnumber+"RL";
+                        _inv.InvoiceNumber = invnumber + "RL";
                         _inv.CustomerName = request.CustomerName;
                         _inv.CustomerID = request.UserID;
                         _inv.CreatedBy = LoggedInUser.DisplayName;
@@ -302,7 +526,7 @@ namespace Web.APIControllers
                         //CREATING INVOICE CONTENT
                         string html1 = "";
                         var client = new WebClient();
-                        html1 = client.DownloadString(ReparLoanInvoiceDownloadString.LocalFilePath);
+                        html1 = client.DownloadString(ReparLoanInvoiceDownloadString.OnlineFilePath);
                         var getcustomeraddress = _db.Users.FirstOrDefault(f => f.UserID == request.UserID).R_Address;
                         var getcustomerphone = _db.Users.FirstOrDefault(f => f.UserID == request.UserID).Phone;
                         var getcustomeremail = _db.Users.FirstOrDefault(f => f.UserID == request.UserID).Email;
@@ -333,11 +557,11 @@ namespace Web.APIControllers
 
                         //INSERTING INVOICE TO LOCAL FOLDER
                         var Invoicebody = textBody1;
-                        System.IO.File.WriteAllText(InsertInvoiceHtmltoLocalFolder.HtmlFilePath_Local + request.LoanApplicationNumber + "RL.html", Invoicebody);
+                        System.IO.File.WriteAllText(InsertInvoiceHtmltoLocalFolder.HtmlFilePath_Online + request.LoanApplicationNumber + "RL.html", Invoicebody);
 
 
                         //CREATE REPAY LOAN  RECORD
-                         _itemRepay = _db.LoanRepayments.Create();
+                        _itemRepay = _db.LoanRepayments.Create();
                         _itemRepay.BalanceBeforeP = (decimal)BalanceRemaining;
                         _itemRepay.BalanceAfterP = (decimal)NewBalanceafterpayment;
                         _itemRepay.UserID = request.UserID;
@@ -389,7 +613,7 @@ namespace Web.APIControllers
 
                         //CREATING EMAIL CONTENT
                         string html = "";
-                        html = client.DownloadString(EmailDownloadString.LocalFilePath);
+                        html = client.DownloadString(EmailDownloadString.OnlineFilePath);
                         StringBuilder sb = new StringBuilder(html);
                         string textBody =
                         sb
@@ -412,7 +636,7 @@ namespace Web.APIControllers
                             Messaging.LogMail(_mail);
                         }
                         catch { }
-                       
+
 
                         //_ChckAppStatus = _db.CheckAppStats.FirstOrDefault(a => a.UserID == request.UserID);
                         //if (BalanceAfterPayment < 0)
@@ -488,7 +712,7 @@ namespace Web.APIControllers
                         //CREATING INVOICE CONTENT
                         string html1 = "";
                         var client = new WebClient();
-                        html1 = client.DownloadString(ReparLoanInvoiceDownloadString.LocalFilePath);
+                        html1 = client.DownloadString(ReparLoanInvoiceDownloadString.OnlineFilePath);
                         var getcustomeraddress = _db.Users.FirstOrDefault(f => f.UserID == request.UserID).R_Address;
                         var getcustomerphone = _db.Users.FirstOrDefault(f => f.UserID == request.UserID).Phone;
                         var getcustomeremail = _db.Users.FirstOrDefault(f => f.UserID == request.UserID).Email;
@@ -514,7 +738,7 @@ namespace Web.APIControllers
 
                         //INSERTING INVOICE TO LOCAL FOLDER
                         var Invoicebody = textBody1;
-                        System.IO.File.WriteAllText(InsertInvoiceHtmltoLocalFolder.HtmlFilePath_Local + request.LoanApplicationNumber + "_RL.html", Invoicebody);
+                        System.IO.File.WriteAllText(InsertInvoiceHtmltoLocalFolder.HtmlFilePath_Online + request.LoanApplicationNumber + "_RL.html", Invoicebody);
 
                         _itemRepay = _db.LoanRepayments.Create();
                         _itemRepay.UserID = request.UserID;
@@ -564,7 +788,7 @@ namespace Web.APIControllers
 
                         //CREATING EMAIL CONTENT
                         string html = "";
-                        html = client.DownloadString(EmailDownloadString.LocalFilePath);
+                        html = client.DownloadString(EmailDownloadString.OnlineFilePath);
                         StringBuilder sb = new StringBuilder(html);
                         string textBody =
                         sb
@@ -657,7 +881,7 @@ namespace Web.APIControllers
 
                         var getcustomername = _db.Users.FirstOrDefault(k => k.UserID == request.UserID).DisplayName;
 
-                        html = client.DownloadString(EmailDownloadString.LocalFilePath);
+                        html = client.DownloadString(EmailDownloadString.OnlineFilePath);
                         StringBuilder sb = new StringBuilder(html);
                         string textBody =
                         sb
@@ -716,7 +940,7 @@ namespace Web.APIControllers
 
                         var getcustomername = _db.Users.FirstOrDefault(k => k.UserID == request.UserID).DisplayName;
 
-                        html = client.DownloadString(EmailDownloadString.LocalFilePath);
+                        html = client.DownloadString(EmailDownloadString.OnlineFilePath);
                         StringBuilder sb = new StringBuilder(html);
                         string textBody =
                         sb
@@ -774,7 +998,7 @@ namespace Web.APIControllers
                         var client = new WebClient();
 
                         var getcustomername = _db.Users.FirstOrDefault(k => k.UserID == request.UserID).DisplayName;
-                        html = client.DownloadString(EmailDownloadString.LocalFilePath);
+                        html = client.DownloadString(EmailDownloadString.OnlineFilePath);
                         StringBuilder sb = new StringBuilder(html);
                         string textBody =
                         sb
@@ -833,7 +1057,7 @@ namespace Web.APIControllers
                         var client = new WebClient();
 
                         var getcustomername = _db.Users.FirstOrDefault(k => k.UserID == request.UserID).DisplayName;
-                        html = client.DownloadString(EmailDownloadString.LocalFilePath);
+                        html = client.DownloadString(EmailDownloadString.OnlineFilePath);
                         StringBuilder sb = new StringBuilder(html);
                         string textBody =
                         sb

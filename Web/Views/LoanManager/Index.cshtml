@@ -312,7 +312,7 @@
                     container: 'swal2-container'
                 },
                 title: 'Submit Form?',
-                text: 'You want to create a New Customer?',
+                text: 'Apply for a new customer Loan?',
                 icon: 'warning',
                 showCancelButton: true,
                 confirmButtonText: 'Yes, Submit!',
@@ -321,7 +321,7 @@
                 if (result.value) {
                     $.ajax({
                         type: "POST",
-                        url: "/api/loan/create",
+                        url: "/api/loan/adcreate",
                         contentType: "application/json; charset=utf-8",
                         data: _data,
                         async: true,

@@ -124,7 +124,10 @@
                                                 <tr>
                                                     <td>@item.Name</td>
                                                     <td>
-                                                        <input id="sub-privilege" type="checkbox" class="form-contro sub-privilege" data-submenu-id="@item.Id" />
+                                                        <div class="checkbox">
+                                                            <input type="checkbox" class="sub-privilege" data-submenu-id="@item.Id" id="@item.Id">
+                                                            <label for="@item.Id"></label>
+                                                        </div>
                                                     </td>
                                                 </tr>
                                             }
@@ -146,6 +149,7 @@
 
 }
 
+<script src="~/js/jquery.min.js"></script>
 <script type="text/javascript">
     $(document).ready(function () {
         var _Form = $('#form1');
@@ -154,7 +158,7 @@
             $(this).click(function (e) {
                 e.preventDefault();
                 _Form[0].reset();
-                showWait();
+                //showWait();
                 msgbox = $('#msgbox2', _Form);
                 var _id = $(this).data('id');
                 var ajaxRequest = $.ajax({
@@ -180,7 +184,7 @@
                                     }
                                 }
                             }
-                            hideWait();
+                            //hideWait();
                             $('#modal-header-text').text('Approve Role');
                             $('#modaldemo1').modal({
                                 'backdrop': 'static',
@@ -192,12 +196,12 @@
                             var msg = 'Error Occurred.<br/>';
                             msg += response.ResponseMsg;
                             errorHandler(msg);
-                            hideWait();
+                            //hideWait();
                         }
                     },
                     error: function (XMLHttpRequest, textStatus, errorThrown) {
                         errorHandler(errorThrown);
-                        hideWait();
+                        //hideWait();
                     }
                 }).done(function () {
 

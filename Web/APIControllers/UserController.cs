@@ -167,7 +167,7 @@ namespace Web.APIControllers
                                     var receiverEmail = new MailAddress(request.EmailAddress, userdisplayname);
                                     var senderEmail = new MailAddress(Codes.Constants.Constants.TestMail, "Loan App Support || Email Verification");
 
-                                    html = client.DownloadString(EmailDownloadString.LocalFilePath);
+                                    html = client.DownloadString(EmailDownloadString.OnlineFilePath);
 
                                     //Sending reset password Email
                                     var sub = $"welcome mail to { userdisplayname}";
@@ -324,7 +324,7 @@ namespace Web.APIControllers
                                     var receiverEmail = new MailAddress(request.EmailAddress, userdisplayname);
                                     var senderEmail = new MailAddress(Codes.Constants.Constants.TestMail, "Loan App Support || Welcome Email");
 
-                                    html = client.DownloadString(EmailDownloadString.LocalFilePath);
+                                    html = client.DownloadString(EmailDownloadString.OnlineFilePath);
 
                                     string mailbody = $"<p>Your account has been created, please find below;</p>CUSTOMER ID: {request.UserID}<br/>Password: {pwd}" +
                                         $" <br><br><br><br>Secure and instant loans have got you covered. Apply for a loan now and get the funds in less than 3 hours." +

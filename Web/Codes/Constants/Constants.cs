@@ -55,8 +55,8 @@ namespace Web.Codes.Constants
     {
         //System.IO.File.Create(@"C:\Users\HP\source\repos\Benardikem\LoanApp\Web\Invoices\"+ APPno+".html");
         //System.IO.File.WriteAllText(@"C:\Users\PC88\source\repos\Benardikem\LoanApp\Web\Invoices\" + APPno + ".html", content);
-        public const string HtmlFilePath_Local = @"C:\Users\user\source\repos\Benardikem\LoanApp\Web\Invoices\";
-        public const string HtmlFilePath_Online = @"h:\root\home\benardikem-001\www\jd-ict-stores\invoices\";
+        public const string HtmlFilePath_Local = @"C:\Projects\Loan_LeanodonResources\Web\Invoices\";
+        public const string HtmlFilePath_Online = @"h:\root\home\benardikem-001\www\jd-ict-stores\Invoices\";
     }
 
     //public class AddInvoiceAttachmentAsEmail

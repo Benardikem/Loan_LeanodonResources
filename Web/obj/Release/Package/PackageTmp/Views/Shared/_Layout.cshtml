@@ -166,16 +166,15 @@
                         <!-- User Account -->
                         <li class="dropdown user user-menu">
                             <a href="#" class="dropdown-toggle" data-toggle="dropdown">
-                                <img src="~/default-picture.png" class="user-image rounded-circle" alt="User Image">
+                                <img src="" class="user-image rounded-circle img1" alt="User Image">
                             </a>
                             <ul class="dropdown-menu scale-up">
                                 <!-- User image -->
                                 <li class="user-header">
-                                    <img src="~/default-picture.png" class="float-left rounded-circle" alt="User Image">
+                                    <img src="" class="float-left rounded-circle img1" alt="User Image" />
                                     <p>
                                         @Web.Application.LoggedInUser.DisplayName
                                         <small class="mb-5">@Web.Application.LoggedInUser.UserId</small>
-                                        <a href="#" class="btn btn-danger btn-sm btn-rounded">View Profile</a>
                                     </p>
                                 </li>
                                 <!-- Menu Body -->
@@ -185,14 +184,10 @@
                                             <a href="#"><i class="fa fa-user"></i> My Profile</a>
                                         </div>
                                         <div class="col-12 text-left">
-                                            <a href="#"><i class="fa fa-envelope"></i> Inbox</a>
+                                            <a href="@Url.Action("Index", "Emaillog" )"><i class="fa fa-envelope"></i> Inbox</a>
                                         </div>
                                         <div class="col-12 text-left">
-                                            <a href="#"><i class="fa fa-pie-chart"></i> Setting</a>
-                                        </div>
-                                        <div role="separator" class="divider col-12"></div>
-                                        <div class="col-12 text-left">
-                                            <a href="#"><i class="ti-settings"></i> Account Setting</a>
+                                            <a href="@Url.Action("ChangePassword", "Account" )"><i class="fa fa-key"></i>&nbsp;Change&nbsp;Password</a>
                                         </div>
                                         <div role="separator" class="divider col-12"></div>
                                         <div class="col-12 text-left">
@@ -202,11 +197,7 @@
                                     <!-- /.row -->
                                 </li>
                             </ul>
-                        </li>
-                        <!-- Control Sidebar Toggle Button -->
-                        <li>
-                            <a href="#" data-toggle="control-sidebar"><i class="fa fa-cog fa-spin"></i></a>
-                        </li>
+                        </li>                        
                     </ul>
                 </div>
             </nav>
@@ -223,9 +214,9 @@
                             <!-- logo for regular state and mobile devices -->
                             <span><b>LOAN </b>APP</span>
                         </a>
-                    </div>s
+                    </div>
                     <div class="image">
-                        <img src="~/default-picture.png" class="rounded-circle" alt="User Image">
+                        <img src="~/default-picture.png" class="rounded-circle img1" alt="User Image">
                     </div>
                     <div class="info">
                         <p><span>@Web.Application.LoggedInUser.DisplayName</span></p>
@@ -254,11 +245,10 @@
 
                 <h1>
                     @ViewBag.Title
-                    <small>Control panel</small>
+                    @*<small>Control panel</small>*@
                 </h1>
                 <ol class="breadcrumb">
                     <li class="breadcrumb-item"><a href="@Url.Action("Index", "Home" )"><i class="fa fa-dashboard"></i>Dashboard</a></li>
-                    <li class="breadcrumb-item active">Dashboard</li>
                     @RenderSection("breadcrumb", required: false)
                 </ol>
 
@@ -273,22 +263,49 @@
             <div class="pull-right d-none d-sm-inline-block">
                 <ul class="nav nav-primary nav-dotted nav-dot-separated justify-content-center justify-content-md-end">
                     <li class="nav-item">
-                        <a class="nav-link" href="javascript:void(0)">FAQ</a>
+                        <a class="nav-link" href="#">FAQ</a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" href="#">Purchase Now</a>
+                        <a class="nav-link" href="#">About Us</a>
                     </li>
                 </ul>
             </div>
-            Copyright @DateTime.Today.Year &copy; All Rights Reserved.
+            Copyright @DateTime.Today.Year &copy; All Rights Reserved. LEON RESOURCES LTD.
         </footer>
-
         <div class="control-sidebar-bg"></div>
-
     </div>
-    <!-- jQuery 3 -->
-    <script src="~/assets/vendor_components/jquery/dist/jquery.min.js"></script>
 
+    <script src="~/assets/vendor_components/jquery/dist/jquery.js"></script>
+    <script type="text/javascript">
+        $(document).ready(function () {
+            $.ajax({
+                type: "GET",
+                url: "/api/gen/LoggedinImageURL",
+                async: true,
+                success: function (resp) {
+                    if (resp.ImageURL != null) {
+                        var src1 = resp.ImageURL;
+                        $(".img1").prop("src", src1);
+                        $('.profile-username').text(resp.DisplayName)
+                        $('.profile-Email').text(resp.Email)
+                    }
+                    else {
+                        var src1 = "../../default-picture.png";
+                        $(".img1").prop("src", src1);
+                        $('.profile-username').text(resp.DisplayName)
+                        $('.profile-Email').text(resp.Email)
+
+                    }
+                },
+                error: function (XMLHttpRequest, textStatus, errorThrown) {
+                    errorHandler(errorThrown);
+                }
+            })
+        })
+    </script>
+
+    <!-- jQuery 3 -->
+    <!--<script src="~/assets/vendor_components/jquery/dist/jquery.min.js"></script>-->
     <!-- popper -->
     <script src="~/assets/vendor_components/popper/dist/popper.min.js"></script>
 
@@ -357,8 +374,6 @@
     <!-- end - This is for export functionality only -->
     <!-- Crypto_Admin for Data Table -->
     <script src="~/js/pages/data-table.js"></script>
-
-
 
 
 

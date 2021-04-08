@@ -144,7 +144,10 @@ namespace Web.Controllers
                 ActionResponse result = await Task.Run(function);
                 if (result.ResponseCode == "00")
                 {
-                    model.Message = $"Welcome {model.DisplayName}, Your Registration was Successful.";
+                    ModelState.AddModelError("", result.ResponseMsg);
+                    CustomAuthentication.CreateAuthenticationTicket(model.EmailAddress, model.RememberMe);
+                    return RedirectToLocal(returnUrl);
+                    //model.Message = String.Format("Welcome {model.DisplayName}, Your Registration was Successful, in a live environment, you will be asked to verify your email address before you can proceed but as this is a demo project; <a href='~/Account/login'> Click here to login </a> with the credentials you registered with.");
                 }
                 else
                 {

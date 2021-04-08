@@ -244,7 +244,7 @@
                 }
                 $("#LoanType").html(s);
                 $("#LoanType_online").html(s);
-                $("#LoanType_online").html(s);                
+                $("#LoanType_online").html(s);
             }
         });
 
@@ -267,10 +267,10 @@
                         $("#LoanRepaid").val(response.AppStatus);
                         $("#LoanStatus").val(response.LoanStatus);
                         $("#LastComment").val(response.Comment);
-                        $("#hdnBalanceRemaining").val(response.BalanceRemaining); 
+                        $("#hdnBalanceRemaining").val(response.BalanceRemaining);
                         $("#LoanApplied").val(response.MonthYear);
                         $("#LoanNextPayment").val(response.LoanNextPayment);
-                        $("#hdnLoanAmount").val(response.LoanAmount);                         
+                        $("#hdnLoanAmount").val(response.LoanAmount);
                     }
                     else {
                         swal.fire(
@@ -316,7 +316,7 @@
                         'LoanStatus': $('#LoanStatus').val(),
                         'Month': $('#RepaymentMonth option:selected').val(),
                         'Year': $('#RepaymentYear option:selected').val(),
-                        'LoanAmount': $('#hdnLoanAmount').val()      
+                        'LoanAmount': $('#hdnLoanAmount').val()
                     },
                     cache: false,
                     success: function (resp) {

@@ -29,21 +29,36 @@ namespace Web.Codes
             ActionResponse result = new ActionResponse { ResponseCode = "96", ResponseMsg = "Invalid Login Details" };
             using (MyDbContext _db = new MyDbContext())
             {
+                User _ChckUserStatus;
+                User _Checkapproved;
                 string pwd = Crypto.Encrypt(strPwd);
-                User user = _db.Users.FirstOrDefault(a => a.UserID == strUser && a.Approved);
+                User user = _db.Users.FirstOrDefault(a => a.UserID == strUser);
                 if (user != null)
                 {
                     string _hashed = Crypto.Encrypt(strPwd);
                     if (user.Password == _hashed)
                     {
-                        if (user.Active)
+                        DateTime _TodayDate = Date.GetDateTimeByTimeZone(DateTime.Now);
+
+                        _Checkapproved = _db.Users.FirstOrDefault(m => m.UserID == strUser && m.Approved);
+                        if (_Checkapproved != null)
                         {
-                            result.ResponseCode = "00";
-                            result.ResponseMsg = "Successful";
+                            _ChckUserStatus = _db.Users.FirstOrDefault(m => m.UserID == strUser && m.Active);
+                            if (_ChckUserStatus != null)
+                            {
+                                result.ResponseCode = "00";
+                                result.ResponseMsg = "Successful";
+                            }
+                            else
+                            {
+                                result.ResponseCode = "96";
+                                result.ResponseMsg = "You may need to verify your account from the email you provided.";
+                            }
                         }
                         else
                         {
-                            result.ResponseMsg = String.Format("Your account has not been activated. Please contact the Administrator on {0}", API.Settings.Site.Phone);
+                            result.ResponseCode = "96";
+                            result.ResponseMsg = "This account has been suspended, please contact your account manager.";
                         }
                     }
                     else
@@ -51,9 +66,44 @@ namespace Web.Codes
                         result.ResponseMsg = "Invalid Username or Password";
                     }
                 }
+                else
+                {
+                    result.ResponseMsg = "Invalid login details";
+                }
             }
             return result;
         }
+
+        //public ActionResponse IsLogin(string strUser, string strPwd)
+        //{
+        //    ActionResponse result = new ActionResponse { ResponseCode = "96", ResponseMsg = "Invalid Login Details" };
+        //    using (MyDbContext _db = new MyDbContext())
+        //    {
+        //        string pwd = Crypto.Encrypt(strPwd);
+        //        User user = _db.Users.FirstOrDefault(a => a.UserID == strUser && a.Approved);
+        //        if (user != null)
+        //        {
+        //            string _hashed = Crypto.Encrypt(strPwd);
+        //            if (user.Password == _hashed)
+        //            {
+        //                if (user.Active)
+        //                {
+        //                    result.ResponseCode = "00";
+        //                    result.ResponseMsg = "Successful";
+        //                }
+        //                else
+        //                {
+        //                    result.ResponseMsg = String.Format("Your account has not been activated. Please contact the Administrator on {0}", API.Settings.Site.Phone);
+        //                }
+        //            }
+        //            else
+        //            {
+        //                result.ResponseMsg = "Invalid Username or Password";
+        //            }
+        //        }
+        //    }
+        //    return result;
+        //}
         public async Task<ActionResponse> ChangePasswordAsync(string username, string oldPassword, string newPassword)
         {
             ActionResponse responseModel = new ActionResponse { ResponseCode = "96", ResponseMsg = "System Malfunction" };
@@ -177,8 +227,7 @@ namespace Web.Codes
                                             var receiverEmail = new MailAddress(Email, userdisplayname);
                                             var senderEmail = new MailAddress(Constants.Constants.TestMail, "Loan App Support || Email Verification");
 
-                                            html = client.DownloadString("C:/Users/user/source/repos/Benardikem/LoanApp/Web/emailtemp/EmptyMail.html");
-                                            //html = client.DownloadString("https://www.hubcsr.com/emailtemps/Verifyemail.html");
+                                            html = client.DownloadString(EmailDownloadString.OnlineFilePath);
 
                                             //Sending Verify Email
                                             var sub = $"welcome mail to { userdisplayname}";
@@ -234,7 +283,7 @@ namespace Web.Codes
                                             }
 
                                             result.ResponseCode = "00";
-                                            result.ResponseMsg = $"Welcome {userdisplayname}, Your Registration was Successful.";
+                                            result.ResponseMsg = $"Welcome {userdisplayname}, Your Registration was Successful, in a live environment, you will be needed to verify your email address before you can proceed but as this is a demo project. in that case, <a href='~/Account/login'> Click here to login </a> with the credentials you registered with.";
                                         }
                                     else
                                     {

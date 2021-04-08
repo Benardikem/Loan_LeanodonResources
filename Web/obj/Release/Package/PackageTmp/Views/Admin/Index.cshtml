@@ -1,0 +1,549 @@
+﻿
+@model Web.Models.UserModel
+
+@{
+    ViewBag.Title = "Administrators";
+}
+@section breadcrumb {
+    <li class="breadcrumb-item active" aria-current="page">Manage Administrators</li>
+}
+<style type="text/css">
+    .my-swal {
+        z-index: 100000000000 !important;
+    }
+
+    .swal2-container {
+        display: -webkit-box;
+        display: flex;
+        position: fixed;
+        z-index: 300000;
+    }
+</style>
+@using Web.Extensions
+@Html.MessageLabel()
+@using (Html.BeginForm("Index", "Admin", FormMethod.Post, new { id = "form1" }))
+{
+    <section class="content">
+        <div class="row">
+            <div class="col-12">
+                <div class="box box-solid bg-dark">
+                    <div class="box-header with-border">
+                        <h3 class="box-title">All Administrators</h3>
+                        <h6 class="box-subtitle">Administrators are listed here, with their respective roles. You can export to Copy, CSV, Excel, PDF & Print</h6>
+                    </div>
+                    <div class="box-body">
+                        <p style="text-align:center;">
+                            <a href="#" data-toggle="tooltip" data-placement="top" title="Add a New Administrator" class="btn btn-sm btn btn-warning add-button" id="AddNew"><i class="fa fa-plus"></i>&nbsp; Add New Admin</a>
+                        </p>
+
+                        <div class="table-responsive">
+                            <table id="example" class="table table-bordered table-hover display nowrap margin-top-10 w-p100">
+                                <thead>
+                                    <tr>
+                                        <th>Display&nbsp;Name</th>
+                                        <th>Admin&nbsp;ID</th>
+                                        <th>Mobile</th>
+                                        <th>Email&nbsp;Address</th>
+                                        <th>Active</th>
+                                        <th>Approved</th>
+                                        <th>Created&nbsp;By</th>
+                                        <th>Date&nbsp;Created</th>
+                                        <th>Roles&nbsp;Assigned</th>
+                                        <th class="no-sort" data-priority="0">Passport</th>
+                                        <th class="no-sort" data-priority="0">Edit</th>
+                                        <th class="no-sort" data-priority="1">Reset Password</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @foreach (var item in Model.UserItems)
+                                    {
+                                        var _norole = "No role assigned";
+                                        <tr>
+
+                                            <td><a href="javascript:;" data-id="@item.UserID" class="view-butto">@item.DisplayName</a></td>
+                                            <td>@item.UserID</td>
+                                            <td>@item.Number</td>
+                                            <td>@item.EmailAddress</td>
+                                            <td>@item.Active</td>
+                                            <td>@item.Approved</td>
+                                            <td>@item.AddedBy</td>
+                                            <td>@String.Format("{0:dd-MMM-yyyy}", @item.AddedDate)</td>
+                                            <td>
+                                                @*@roles*@
+                                                @if (item.Roles != null && item.Roles.Count() > 0)
+                                                {
+                                                    <ul>
+                                                        @foreach (var _role in item.Roles)
+                                                        {
+                                                            <li>@_role </li>
+                                                        }
+                                                    </ul>
+                                                }
+                                                else
+                                                {
+                                                    //No role assigned
+                                                    @_norole
+                                                }
+                                            </td>
+                                            <td><a data-id="@item.UserID" href="javascript:;" class="update-pp btn btn-sm btn-primary" data-toggle="modal" data-target="#modalPP"><i class="fa fa-user"></i>&nbsp;Update&nbsp;Passport</a></td>
+                                            <td><a data-id="@item.UserID" href="javascript:;" class="edit-button btn btn-sm btn-success" data-toggle="modal" data-target="#modaldemo1"><i class="fa fa-edit"></i> Edit</a></td>
+                                            <td><a data-id="@item.UserID" href="javascript:;" class="reset-password btn btn-sm btn-info"><i class="fa fa-lock"></i> Reset&nbsp;Password</a></td>
+                                        </tr>
+                                    }
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- BASIC MODAL -->
+    <div id="modaldemo1" class="modal fade effect-rotate-left" role="dialog" aria-hidden="true">
+        <div class="modal-dialog modal-lg" role="document">
+            <div class="modal-content">
+                <form>
+                    <div class="modal-header">
+                        <h6 class="tx-14 mg-b-0 tx-uppercase tx-inverse tx-bold" id="modal-header-text"></h6>
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
+                    <div class="modal-body wd-800 my-modal-body">
+                        <input id="Mode" type="hidden" value="NEW" />
+                        <div class="row">
+
+                            <div class="form-group col-lg-6">
+                                <label for="DisplayName" class="col-form-label">Staff Full Name : <span class="tx-danger">*</span></label>
+                                <input id="DisplayName" type="text" maxlength="100" required="required" class="form-control" name="DisplayName" />
+                            </div>
+                            <div class="form-group col-lg-6">
+                                <label for="EmailAddress" class="col-form-label">Staff E-Mail Address : <span class="tx-danger">*</span></label>
+                                <input id="EmailAddress" type="email" maxlength="100" required="required" class="form-control" name="EmailAddress" />
+                            </div>
+                            <div class="form-group col-lg-6">
+                                <label for="Mobile" class="col-form-label"> Staff Mobile Number : <span class="tx-danger">*</span></label>
+                                <input id="MobilePhone" type="text" maxlength="100" required="required" class="form-control" name="MobilePhone" />
+                            </div>
+                            <div class="form-group col-lg-6">
+                                <label for="R_Address" class="col-form-label"> Staff Residential Address : <span class="tx-danger">*</span></label>
+                                <input id="R_Address" type="text" maxlength="100" required="required" class="form-control" name="R_Address" />
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="form-group col-lg-6">
+                                <div class="checkbox">
+                                    <input type="checkbox" id="Active" name="Active">
+                                    <label for="Active">Active?</label>
+                                </div>
+                            </div>
+                        </div>
+                        <table class="table table-striped table-bordered" id="RoleGrid">
+                            <thead>
+                                <tr>
+                                    <th colspan="2">Roles</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach (var item in Model.RoleItems)
+                                {
+                                    <tr>
+                                        <td>@item.Name</td>
+                                        <td>
+                                            <div class="checkbox">
+                                                <input type="checkbox" id="@item.Id" class="user-role" data-role-id="@item.Id">
+                                                <label for="@item.Id"></label>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="submit" id="SaveButton" class="btn btn-primary">Save changes</button>
+                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+    <input id="hdnUserId" type="hidden" />
+}
+<div id="modalPP" class="modal fade effect-rotate-left" role="dialog" aria-hidden="true">
+    <div class="modal-dialog modal-lg" role="document">
+        <div class="modal-content">
+            <form id="UploadPP" enctype="multipart/form-data">
+                <div class="modal-header">
+                    <h6 class="tx-14 mg-b-0 tx-uppercase tx-inverse tx-bold" id="modal-header-text1"></h6>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body wd-800 my-modal-body">
+                    <div class="row">
+                        <div class="form-group col-lg-6">
+                            <img src="" style="overflow: hidden; position: relative; width:220px; height:220px;" alt="Customer passport" class="rcorners3 profile-user-img rounded img-fluid mx-auto d-block img1" />
+                        </div>
+                        <input id="hdnUsersId" name="hdnUsersId" type="hidden" />
+                        <div class="form-group col-lg-6">
+                            <div><br /><br /><br /></div>
+                            <div class="row social-states">
+                                <p>Please Select an Image : <i class="fa fa-arrow-down mr-10"></i></p><br /><br />
+                                <input type="file" id="fileUpload" name="fileUpload" class="form-control" required="required" />
+                            </div>
+                            <br /><br />
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="submit" class="btn btn-primary">Update Customer Passport</button>
+                    @*<input type="button" class="btn btn-primary" onclick="SavePP()" value="Update Customer Passport" />*@
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<script src="~/assets/vendor_components/jquery/dist/jquery.js"></script>
+<script type="text/javascript">
+    $(document).ready(function () {
+        var _Form = $('#form1');
+
+        $('#AddNew').on('click', function (e) {
+            e.preventDefault();
+            _Form[0].reset();
+            $('#hdnUserId').val('');
+            $('#UserCategoryDropDown').val('0');
+            $('#Mode').val('NEW');
+            $('#DisplayName').attr('disabled', false);
+            $('#EmailAddress').attr('disabled', false);
+            $('#MobilePhone').attr('disabled', false);
+            $("#SaveButton").show();
+            $('#fetch-button').attr('disabled', false);
+            $('#RoleGrid').find(".user-role").each(function () {
+                $(this).attr('disabled', false);
+            });
+            $('#modal-header-text').text('Create New Admin');
+            $('#modaldemo1').modal({
+                'backdrop': 'static',
+                "keyboard": false,
+                "show": true
+            });
+        });
+
+        $('#example').find('.edit-button').each(function () {
+            $(this).click(function (e) {
+                e.preventDefault();
+                var _id = $(this).data('id');
+                $('.user-role').prop('checked', false);
+                $.ajax({
+                    type: "GET",
+                    url: "/api/user/fetch?Id=" + _id,
+                    contentType: "application/json; charset=utf-8",
+                    async: true,
+                    success: function (response) {
+                        if (response.DisplayName != null && response.DisplayName != '') {
+                            $('#Mode').val('EDIT');
+                            $('#hdnUserId').val(response.UserID);
+                            $('#DisplayName').val(response.DisplayName);
+                            $('#DisplayName').attr('disabled', false);
+                            $('#EmailAddress').val(response.EmailAddress);
+                            $('#EmailAddress').attr('disabled', false);
+                            $('#MobilePhone').val(response.Phone);
+                            $('#MobilePhone').attr('disabled', false);
+                            $('#Active').prop('checked', response.Active);
+                            $('#fetch-button').attr('disabled', false);
+                            $('#RoleGrid').find(".user-role").each(function () {
+                                $(this).attr('disabled', false);
+                            });
+                            if (response.Roles != null && response.Roles.length > 0) {
+                                for (index = 0; index < response.Roles.length; index++) {
+                                    var cntr = $("input[data-role-id='" + response.Roles[index].RoleId + "']");
+                                    if (typeof cntr !== undefined && cntr.length > 0) {
+                                        $(cntr).prop('checked', true);
+                                    }
+                                }
+                            }
+                            $("#SaveButton").show();
+                            $('#modal-header-text').text('Modify Admin Details');
+                            $('#modaldemo1').modal({
+                                'backdrop': 'static',
+                                "keyboard": false,
+                                "show": true
+                            });
+                        }
+                        else {
+                            swal.fire(
+                                "Internal Error",
+                                response.ResponseMsg,
+                                "error"
+                            );
+                        }
+                    },
+                    error: function (XMLHttpRequest, textStatus, errorThrown) {
+                        swal.fire(
+                            "Internal Error",
+                            response.ResponseMsg,
+                            "error"
+                        );
+                    }
+                }).done(function () {
+
+                });
+            });
+        });
+
+        $('#example').find('.reset-password').each(function () {
+            $(this).click(function (e) {
+                var _id = $(this).data('id');
+                e.preventDefault();
+                e.preventDefault();
+                var request = {
+                    'UserID': _id,
+                };
+                var _data = JSON.stringify(request);
+                Swal.fire({
+                    title: 'Reset Password?',
+                    text: 'You want to Reset Admin Password??',
+                    icon: 'warning',
+                    showCancelButton: true,
+                    confirmButtonText: 'Yes, Reset!',
+                    cancelButtonText: 'No, dont'
+                }).then((result) => {
+                    if (result.value) {
+                        $.ajax({
+                            type: "Post",
+                            url: "/api/user/resetpass",
+                            contentType: "application/json; charset=utf-8",
+                            data: _data,
+                            async: true,
+                            cache: false,
+                            success: function (resp) {
+                                if (resp.ResponseCode !== null && resp.ResponseCode === '00') {
+                                    swal.fire(
+                                        "Success!",
+                                        resp.ResponseMsg,
+                                        "success"
+                                    ).then(function () {
+                                        window.location.replace("../../Admin/");
+                                    });
+                                }
+                                if (resp.ResponseCode !== null && resp.ResponseCode === '96') {
+                                    swal.fire(
+                                        "Warning!",
+                                        resp.ResponseMsg,
+                                        "error"
+                                    );
+                                }
+                            },
+                            failure: function (resp) {
+                                swal.fire(
+                                    "Internal Error",
+                                    "Oops, Error Occurred.",
+                                    "error"
+                                );
+                            }
+                        });
+
+                    } else if (result.dismiss === Swal.DismissReason.cancel) {
+                        Swal.fire(
+                            'Cancelled',
+                            'You have cancelled your request',
+                            'error'
+                        )
+                    }
+                })
+            });
+        });
+
+        $('#example').find('.update-pp').each(function () {
+            $(this).click(function (e) {
+                e.preventDefault();
+                var _id = $(this).data('id');
+                $('.user-role').prop('checked', false);
+                $.ajax({
+                    type: "GET",
+                    url: "/api/gen/UserImageURLAndOtherDetails?Id=" + _id,
+                    contentType: "application/json; charset=utf-8",
+                    async: true,
+                    success: function (resp) {
+                        if (resp.ImageURL != null) {
+                            var src1 = resp.ImageURL;
+                            $(".img1").prop("src", src1);
+                            $("#hdnUsersId").val(resp.UserID);
+                            $("#SaveButton").show();
+                            $('#modal-header-text1').text('Modify Customers Passport');
+                            $('#modalPP').modal({
+                                'backdrop': 'static',
+                                "keyboard": false,
+                                "show": true
+                            });
+                        }
+                        else {
+                            var src1 = "../../default-picture.png";
+                            $(".img1").prop("src", src1);
+                            $("#hdnUsersId").val(resp.UserID);
+                        }
+                    },
+                    error: function (XMLHttpRequest, textStatus, errorThrown) {
+                        swal.fire(
+                            "Internal Error",
+                            response.ResponseMsg,
+                            "error"
+                        );
+                    }
+                }).done(function () {
+
+                });
+            });
+        });
+
+        _Form.submit(function (e) {
+            e.preventDefault();
+            var roles = [];
+            $('#RoleGrid').find(".user-role").each(function () {
+                if ($(this).is(':checked')) {
+                    var role = {
+                        RoleId: $(this).data('role-id')
+                    };
+                    roles.push(role);
+                }
+            });
+            var request = {
+                'Mode': $('#Mode').val(),
+                'UserID': $('#hdnUserId').val(),
+                'Name': $('#DisplayName').val(),
+                'EmailAddress': $('#EmailAddress').val(),
+                'Mobile': $('#MobilePhone').val(),
+                'R_Address': $('#R_Address').val(),
+                'Active': $('#Active').is(':checked'),
+                'Roles': roles,
+            };
+            var _data = JSON.stringify(request);
+            Swal.fire({
+                customClass: {
+                    container: 'swal2-container'
+                },
+                title: 'Submit Form?',
+                text: 'You want to create a New Admin?',
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonText: 'Yes, Create!',
+                cancelButtonText: 'No, dont'
+            }).then((result) => {
+                if (result.value) {
+                    $.ajax({
+                        type: "Post",
+                        url: "/api/user/add",
+                        contentType: "application/json; charset=utf-8",
+                        data: _data,
+                        async: true,
+                        cache: false,
+                        success: function (resp) {
+                            if (resp.ResponseCode !== null && resp.ResponseCode === '00') {
+                                swal.fire(
+                                    "Success!",
+                                    resp.ResponseMsg,
+                                    "success"
+                                ).then(function () {
+                                    window.location.replace("../../Admin/");
+                                });
+                            }
+                            if (resp.ResponseCode !== null && resp.ResponseCode === '96') {
+                                swal.fire(
+                                    "Warning!",
+                                    resp.ResponseMsg,
+                                    "error"
+                                );
+                            }
+                        },
+                        failure: function (resp) {
+                            swal.fire(
+                                "Internal Error",
+                                "Oops, Error Occurred.",
+                                "error"
+                            );
+                        }
+                    });
+
+                } else if (result.dismiss === Swal.DismissReason.cancel) {
+                    Swal.fire(
+                        'Cancelled',
+                        'You have cancelled your request',
+                        'error'
+                    )
+                }
+            })
+        });
+
+        var _uploadForm = $('#UploadPP');
+        _uploadForm.submit(function (e) {
+            e.preventDefault();
+            var formData = new FormData();
+            var file = document.getElementById("fileUpload").files[0];
+            formData.append("fileUpload", file);
+
+            var Name = $('#hdnUsersId').val().trim();
+            formData.append("Name", Name);
+
+            Swal.fire({
+                customClass: {
+                    container: 'swal2-container'
+                },
+                title: 'Update Passport?',
+                text: 'You want to Update Customer Passport?',
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonText: 'Yes, Update!',
+                cancelButtonText: 'No, dont'
+            }).then((result) => {
+                if (result.value) {
+                    $.ajax({
+                        type: "POST",
+                        url: "/api/gen/upload?Name=" + Name,
+                        data: formData,
+                        contentType: false,
+                        processData: false,
+                        async: true,
+                        success: function (resp) {
+                            if (resp.ResponseCode !== null && resp.ResponseCode === '00') {
+                                swal.fire(
+                                    "Success!",
+                                    resp.ResponseMsg,
+                                    "success"
+                                ).then(function () {
+                                    window.location.replace("../../Admin/");
+                                });
+                            }
+                            if (resp.ResponseCode !== null && resp.ResponseCode === '96') {
+                                swal.fire(
+                                    "Warning!",
+                                    resp.ResponseMsg,
+                                    "error"
+                                );
+                            }
+                        },
+                        failure: function (resp) {
+                            swal.fire(
+                                "Internal Error",
+                                "Oops, Error Occurred.",
+                                "error"
+                            );
+                        }
+                    });
+
+                } else if (result.dismiss === Swal.DismissReason.cancel) {
+                    Swal.fire(
+                        'Cancelled',
+                        'You have cancelled your request',
+                        'error'
+                    )
+                }
+            })
+        });
+    });
+</script>
+

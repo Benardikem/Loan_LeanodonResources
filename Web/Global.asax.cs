@@ -13,6 +13,8 @@ using Web.Application;
 using System.Data.Entity;
 using API.Models;
 using Web.Codes;
+using System.Security.Cryptography;
+using API.Utilities;
 
 namespace Web
 {
@@ -38,18 +40,26 @@ namespace Web
         {
             HttpCookie authCookie = Request.Cookies[Cookie_Name];
             if (authCookie != null)
-            {
-                FormsAuthenticationTicket authTicket = FormsAuthentication.Decrypt(authCookie.Value);
-                if (authTicket.UserData == "OAuth") return;
-                JavaScriptSerializer serializer = new JavaScriptSerializer();
-                CustomPrincipalSerializedModel serializeModel = serializer.Deserialize<CustomPrincipalSerializedModel>(authTicket.UserData);
-                CustomPrincipal newUser = new CustomPrincipal(authTicket.Name);
-                newUser.UserId = serializeModel.UserId;
-                newUser.DisplayName = serializeModel.DisplayName;
-                newUser.Email = serializeModel.Email;
-                newUser.UserCategory = serializeModel.UserCategory;
-                HttpContext.Current.User = newUser;
-            }
+                try
+                {
+                    FormsAuthenticationTicket authTicket = FormsAuthentication.Decrypt(authCookie.Value);
+                    if (authTicket.UserData == "OAuth") return;
+                    JavaScriptSerializer serializer = new JavaScriptSerializer();
+                    CustomPrincipalSerializedModel serializeModel = serializer.Deserialize<CustomPrincipalSerializedModel>(authTicket.UserData);
+                    CustomPrincipal newUser = new CustomPrincipal(authTicket.Name);
+                    newUser.UserId = serializeModel.UserId;
+                    newUser.DisplayName = serializeModel.DisplayName;
+                    newUser.Email = serializeModel.Email;
+                    newUser.UserCategory = serializeModel.UserCategory;
+                    //newUser.ImageURL = serializeModel.ImageURL;
+                    //newUser.Phone = serializeModel.Phone;
+                    HttpContext.Current.User = newUser;
+                }
+                catch (CryptographicException cex)
+                {
+                    FormsAuthentication.SignOut();
+                    General.LOGGER.Error(cex.Source, cex);
+                }
         }
     }
 }

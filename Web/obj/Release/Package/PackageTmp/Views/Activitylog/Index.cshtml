@@ -1,0 +1,48 @@
+﻿@model  Web.Models.ActivitylogModel
+@{
+    ViewBag.Title = "Activity log Manager";
+}
+
+@using (Html.BeginForm("Index", "Activitylog", FormMethod.Post, new { id = "formActivitylog" }))
+{
+    <section class="content">
+        <div class="row">
+            <div class="col-12">
+                <div class="box box-solid bg-dark">
+                    <div class="box-header with-border">
+                        <h3 class="box-title">Activitiy Log</h3>
+                        <h6 class="box-subtitle">Manage Activities on the Portal here. You can export to Copy, CSV, Excel, PDF & Print</h6>
+                    </div>
+                    <div class="box-body">
+                        <div class="table-responsive">
+                            <table id="example" class="table table-bordered table-hover display nowrap margin-top-10 w-p100">
+                                <thead>
+                                    <tr>
+                                        <th>Title</th>
+                                        <th>Activity&nbsp;Type</th>
+                                        <th>Created&nbsp;By</th>
+                                        <th>Details</th>
+                                        <th>Activity&nbsp;Date</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @foreach (var item in Model.ActivitylogItems)
+                                    {
+                                        <tr>
+                                            <td>@item.Title</td>
+                                            <td>@item.ActivityType</td>
+                                            <td>@item.UserName</td>
+                                            <td>@item.Details</td>
+                                            <td>@String.Format("{0:dd-MMM-yyyy hh:mm}", @item.ActivityDate)</td>
+                                        </tr>
+                                    }
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+}
+

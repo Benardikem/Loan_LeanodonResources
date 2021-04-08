@@ -18,7 +18,7 @@
                         <h3 class="box-title">All Roles</h3>
                         <h6 class="box-subtitle">Roles are for assigning priviledges to administrators of the portal, you can export to Copy, CSV, Excel, PDF & Print</h6>
                     </div>
-                   
+
                     <div class="box-body">
                         <div style="text-align:center;">
                             <a href="#" data-toggle="tooltip" data-placement="top" title="Add New Role" class="btn btn-sm btn-primary add-button" id="AddNew"><i class="fa fa-plus"></i>&nbsp; Add New Role</a>
@@ -62,7 +62,7 @@
             </div>
         </div>
     </section>
-    
+
 
     <div id="modaldemo1" class="modal fade effect-rotate-left" role="dialog" aria-hidden="true">
         <div class="modal-dialog modal-lg" role="document">
@@ -91,7 +91,8 @@
                             <div class="form-group col-lg-6">
                                 <label for="Mobile" class="col-form-label">  Active ?: </label>
                                 <label class="checkbox-inline">
-                                    <input id="Active" type="checkbox" name="Active" />
+                                    <input type="checkbox" id="Active" name="Active">
+                                    <label for="Active">Active?</label>
                                 </label>
                             </div>
                         </div>
@@ -120,7 +121,10 @@
                                                     <tr>
                                                         <td>@item.Name</td>
                                                         <td>
-                                                            <input id="sub-privilege" type="checkbox" class="sub-privilege" data-submenu-id="@item.Id" />
+                                                            <div class="checkbox">
+                                                                <input type="checkbox" class="sub-privilege" data-submenu-id="@item.Id" id="@item.Id">
+                                                                <label for="@item.Id"></label>
+                                                            </div>
                                                         </td>
                                                     </tr>
                                                 }
@@ -142,9 +146,15 @@
 
 }
 
+@*<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
+<link rel="stylesheet" href="http://maxcdn.bootstrapcdn.com/bootstrap/3.3.4/css/bootstrap.min.css">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/bootbox.js/4.4.0/bootbox.min.js" type="text/javascript"></script>*@
 
+
+@*<script src="~/js/jquery.min.js"></script>*@
 <script type="text/javascript">
     $(document).ready(function () {
+        alert();
         var _Form = $('#form1');
         $('#AddNew').on('click', function (e) {
             e.preventDefault();
@@ -169,10 +179,10 @@
             $(this).click(function (e) {
                 e.preventDefault();
                 _Form[0].reset();
-                showWait();
+                // showWait();
                 msgbox = $('#msgbox2', _Form);
                 var _id = $(this).data('id');
-                var ajaxRequest = $.ajax({
+                $.ajax({
                     type: "GET",
                     url: "/api/user/fetch-role?Id=" + _id,
                     contentType: "application/json; charset=utf-8",
@@ -199,7 +209,7 @@
                                 }
                             }
                             $("#SaveButton").show();
-                            hideWait();
+                            //hideWait();
                             $('#modal-header-text').text('Modify Role');
                             $('#myModal').modal({
                                 'backdrop': 'static',
@@ -211,12 +221,12 @@
                             var msg = 'Error Occurred.<br/>';
                             msg += response.ResponseMsg;
                             errorHandler(msg);
-                            hideWait();
+                            //hideWait();
                         }
                     },
                     error: function (XMLHttpRequest, textStatus, errorThrown) {
                         errorHandler(errorThrown);
-                        hideWait();
+                        //hideWait();
                     }
                 }).done(function () {
 
@@ -228,10 +238,10 @@
             $(this).click(function (e) {
                 e.preventDefault();
                 _Form[0].reset();
-                showWait();
+                // showWait();
                 msgbox = $('#msgbox2', _Form);
                 var _id = $(this).data('id');
-                var ajaxRequest = $.ajax({
+                $.ajax({
                     type: "GET",
                     url: "/api/user/fetch-role?Id=" + _id,
                     contentType: "application/json; charset=utf-8",
@@ -258,7 +268,7 @@
                                 }
                             }
                             $("#SaveButton").hide();
-                            hideWait();
+                            //hideWait();
                             $('#modal-header-text').text('View Role');
                             $('#myModal').modal({
                                 'backdrop': 'static',
@@ -270,12 +280,12 @@
                             var msg = 'Error Occurred.<br/>';
                             msg += response.ResponseMsg;
                             errorHandler(msg);
-                            hideWait();
+                            //hideWait();
                         }
                     },
                     error: function (XMLHttpRequest, textStatus, errorThrown) {
                         errorHandler(errorThrown);
-                        hideWait();
+                        //hideWait();
                     }
                 }).done(function () {
 
@@ -319,7 +329,7 @@
                                 Submenus: subs
                             };
                             var _data = JSON.stringify(request);
-                            console.log(_data);
+                            //console.log(_data);
                             $.ajax({
                                 type: "POST",
                                 url: "/api/user/add-role",
